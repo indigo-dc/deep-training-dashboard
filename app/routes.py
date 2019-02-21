@@ -43,7 +43,7 @@ def home():
             access_token = oidc.get_access_token()
             headers = {'Authorization': 'bearer %s' % (access_token)}
             
-            url = orchestratorUrl +  "/deployments"
+            url = orchestratorUrl +  "/deployments?createdBy=me"
             response = requests.get(url, headers=headers)
 
             if not response.ok:

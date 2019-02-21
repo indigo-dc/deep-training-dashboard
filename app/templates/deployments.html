@@ -44,7 +44,6 @@
         <p><b>UPDATED AT</b> {{dep.updateTime}}</p>
         <p><b>DEPLOYED AT</b> {{dep.cloudProviderName}}</p>
         <p><b>OUTPUTS</b><pre> {{dep.outputs | tojson_pretty() | safe }}</pre></p>
-        <p><b>CREATED BY</b> {{dep.createdBy.subject}}</p>
         <button type=button class="btn btn-default" onclick="location.href='{{ url_for("deptemplate", depid=dep.uuid) }}'">
            <span class="glyphicon glyphicon-search"></span> show template</button>
         <button type=button class="btn btn-default" onclick="location.href='{{ url_for("depdel", depid=dep.uuid) }}'">
