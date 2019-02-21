@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+{% for message in messages %}
+<div class="alert alert-warning">
+  <strong>Warning!</strong> {{ message }}
+</div>
+<p></p>
+{% endfor %}
+{% endif %}
+{% endwith %}
+
+  <br>
+  <form name="tosca_template" action="{{ url_for('depcreate') }}" method='POST'>
+     <div class="form-group">
+       <label for="sel1">Select TOSCA Template:</label>
+       <select class="js-example-basic-single" name="tosca_template">
+          <!-- <option value="" selected disabled>-->
+          <!-- <option hidden selected disabled >Select a template...</option> -->
+          {% for tosca in templates %}
+          <option name="tosca_template">{{tosca}}</option>
+          {% endfor %}
+       </select>
+     </div>
+     <button type="submit" class="btn btn-success">Apply</button>
+  </form>
+
+  {% if selectedTemplate is defined %}
+  <h1> Template: {{selectedTemplate}} </h1>
+  {% endif %}
+
+  {% if description is defined %}
+  <div class="alert alert-info">
+    <strong>Description:</strong> {{description}}
+  </div>
+  {% endif %}
+
+  {% if inputs|length > 1 %}
+  <h2>Set input values:</h2>
+  <form action="{{ url_for('createdep', template=selectedTemplate) }}" method="post">
+    {% for key, value in inputs.items() %}
+    <div class="form-group">
+      <label for="{{key}}">{{key}}</label>
+      <input type="text" class="form-control" id="{{key}}" name="{{key}}" value="{{value.default}}" aria-describedby="help{{key}}" />
+      <span id="help{{key}}" class="help-block">{{value.description}}</span>
+    </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-success">Submit</button>
+  </form>
+  {% endif %}
+</div>
+
+<script>
+$(document).ready(function() {
+    $('.js-example-basic-single').select2();
+});
+</script>
+
+{% endblock %}

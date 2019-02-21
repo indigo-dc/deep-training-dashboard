@@ -1,0 +1,26 @@
+<html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+      <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet">
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+    </head>
+    <body>
+        <nav class="navbar navbar-inverse">
+          <div class="container-fluid">
+             <div class="navbar-header">
+                <a class="navbar-brand" href="/home">PaaS Orchestrator Dashboard</a>
+             </div>
+             {% if session['username'] %}
+             <ul class="nav navbar-nav navbar-right navbar-text">
+               <li><span class="glyphicon glyphicon-user"></span> {{ session['username'] }}</li>
+             </ul>
+             {% endif %}
+          </div>
+        </nav>
+        {% block content %}{% endblock %}
+    </body>
+</html>
