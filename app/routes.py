@@ -54,7 +54,7 @@ def home():
 
             return render_template('deployments.html', deployments=deployments, username=username)
 
-        except Exception,e: 
+        except Exception as e: 
             flash("Error: " + e)
             return redirect(url_for('home'))
 
@@ -81,7 +81,7 @@ def depdel(depid=None):
     headers = {'Authorization': 'bearer %s' % (access_token)}
     url = orchestratorUrl + "/deployments/" + depid
     response = requests.delete(url, headers=headers)
-    print response
+    app.logger.info(response)
     if response.status_code == 403:
        flash('You are not allowed to delete this deployment');
   
