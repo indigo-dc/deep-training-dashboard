@@ -27,6 +27,7 @@ orchestratorUrl = app.config.get('ORCHESTRATOR_URL')
 @app.route('/home')
 @oidc.require_login
 def home():
+  app.logger.debug("Calling home()")
   if oidc.user_loggedin:
      info = oidc.user_getinfo(['preferred_username', 'email', 'sub'])
      app.logger.info("User logged-in: " + json.dumps(info))
@@ -56,21 +57,17 @@ def home():
             return render_template('deployments.html', deployments=deployments, username=username)
 
         except Exception as e: 
-            flash("Error: " + e)
+            flash("Error: " + str(e))
             return redirect(url_for('home'))
 
-def get_access_token():
-  atoken = oidc.get_access_token()
-  if atoken is None:
-    oidc.logout()
-    return redirect(url_for('home'))
-  else:
-    return atoken
 
 @app.route('/template/<depid>')
-@oidc.require_login
 def deptemplate(depid=None):
-    access_token = get_access_token()
+    app.logger.debug("Calling deptemplate()")
+    if not oidc.user_loggedin:
+      return redirect(url_for('home'))
+
+    access_token = oidc.get_access_token()
     headers = {'Authorization': 'bearer %s' % (access_token)}
     url = orchestratorUrl + "/deployments/" + depid + "/template"
     response = requests.get(url, headers=headers)
@@ -83,22 +80,28 @@ def deptemplate(depid=None):
     return render_template('deptemplate.html', template=template)
 
 @app.route('/delete/<depid>')
-@oidc.require_login
 def depdel(depid=None):
-    access_token = get_access_token()
-    headers = {'Authorization': 'bearer %s' % (access_token)}
-    url = orchestratorUrl + "/deployments/" + depid
-    response = requests.delete(url, headers=headers)
-    app.logger.info(response)
-    if response.status_code == 403:
-       flash('You are not allowed to delete this deployment');
+    app.logger.debug("Calling depdel()")
+    if oidc.user_loggedin:
+       access_token = oidc.get_access_token()
+       headers = {'Authorization': 'bearer %s' % (access_token)}
+       url = orchestratorUrl + "/deployments/" + depid
+       response = requests.delete(url, headers=headers)
+       app.logger.info(response)
+       if response.status_code == 403:
+          flash('You are not allowed to delete this deployment');
   
     return redirect(url_for('home'))
 
 @app.route('/create', methods=['GET', 'POST'])
-@oidc.require_login
 def depcreate():
-     access_token = get_access_token()
+     app.logger.debug("Calling depcreate()")
+     access_token = oidc.get_access_token()
+
+     if not oidc.user_loggedin or access_token is None:
+       return redirect(url_for('home'))
+
+     app.logger.debug("access token: " + access_token)
 
      if request.method == 'GET':
         return render_template('createdep.html', templates=toscaTemplates, inputs={})
@@ -122,14 +125,21 @@ def depcreate():
         
  
 @app.route('/submit', methods=['POST'])
-@oidc.require_login
 def createdep():
+  app.logger.debug("Calling createdep()")
+
+  access_token = oidc.get_access_token()
+
+  if not oidc.user_loggedin or access_token is None:
+     return redirect(url_for('home'))
+
+  try:
      with io.open( toscaDir + request.args.get('template')) as stream:   
         payload = { "template" : stream.read(), "parameters": request.form.to_dict() }
       
      body= json.dumps(payload)
      
-     access_token = get_access_token() 
+     app.logger.debug("access token: " + access_token)
 
      url = orchestratorUrl +  "/deployments/"
      headers = {'Content-Type': 'application/json', 'Authorization': 'bearer %s' % (access_token)}
@@ -139,5 +149,7 @@ def createdep():
                flash("Error submitting deployment: \n" + response.text)
     
      return redirect(url_for('home'))
-
+  except Exception as e:
+     app.logger.error("Error submitting deployment:" + str(e))
+     return redirect(url_for('home'))
 
