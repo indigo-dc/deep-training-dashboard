@@ -31,26 +31,29 @@
 
   {% if selectedTemplate is defined %}
   <h1> Template: {{selectedTemplate}} </h1>
-  {% endif %}
 
-  {% if description is defined %}
-  <div class="alert alert-info">
-    <strong>Description:</strong> {{description}}
-  </div>
-  {% endif %}
-
-  {% if inputs|length > 1 %}
-  <h2>Set input values:</h2>
-  <form action="{{ url_for('createdep', template=selectedTemplate) }}" method="post">
-    {% for key, value in inputs.items() %}
-    <div class="form-group">
-      <label for="{{key}}">{{key}}</label>
-      <input type="text" class="form-control" id="{{key}}" name="{{key}}" value="{{value.default}}" aria-describedby="help{{key}}" />
-      <span id="help{{key}}" class="help-block">{{value.description}}</span>
-    </div>
-    {% endfor %}
-    <button type="submit" class="btn btn-success">Submit</button>
-  </form>
+      {% if description is defined %}
+      <div class="alert alert-info">
+        <strong>Description:</strong> {{description}}
+      </div>
+      {% endif %}
+    
+      {% if inputs|length > 1 %}
+      <h2>Set input values:</h2>
+      {% endif %}
+      <form action="{{ url_for('createdep', template=selectedTemplate) }}" method="post">
+        <input type="hidden" id="noinputId" name="noinput" value="">
+        {% if inputs|length > 1 %}
+        {% for key, value in inputs.items() %}
+        <div class="form-group">
+          <label for="{{key}}">{{key}}</label>
+          <input type="text" class="form-control" id="{{key}}" name="{{key}}" value="{{value.default}}" aria-describedby="help{{key}}" />
+          <span id="help{{key}}" class="help-block">{{value.description}}</span>
+        </div>
+        {% endfor %}
+        {% endif %}
+        <button type="submit" class="btn btn-success">Submit</button>
+      </form>
   {% endif %}
 </div>
 
