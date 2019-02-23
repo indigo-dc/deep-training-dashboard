@@ -41,6 +41,7 @@ def home():
      if user_id in oidc.credentials_store:
         try:
             access_token = oidc.get_access_token()
+            app.logger.info("Access token: " + access_token)
             headers = {'Authorization': 'bearer %s' % (access_token)}
             
             url = orchestratorUrl +  "/deployments?createdBy=me"
@@ -58,11 +59,18 @@ def home():
             flash("Error: " + e)
             return redirect(url_for('home'))
 
+def get_access_token():
+  atoken = oidc.get_access_token()
+  if atoken is None:
+    oidc.logout()
+    return redirect(url_for('home'))
+  else:
+    return atoken
 
 @app.route('/template/<depid>')
 @oidc.require_login
 def deptemplate(depid=None):
-    access_token = oidc.get_access_token()
+    access_token = get_access_token()
     headers = {'Authorization': 'bearer %s' % (access_token)}
     url = orchestratorUrl + "/deployments/" + depid + "/template"
     response = requests.get(url, headers=headers)
@@ -77,7 +85,7 @@ def deptemplate(depid=None):
 @app.route('/delete/<depid>')
 @oidc.require_login
 def depdel(depid=None):
-    access_token = oidc.get_access_token()
+    access_token = get_access_token()
     headers = {'Authorization': 'bearer %s' % (access_token)}
     url = orchestratorUrl + "/deployments/" + depid
     response = requests.delete(url, headers=headers)
@@ -90,7 +98,7 @@ def depdel(depid=None):
 @app.route('/create', methods=['GET', 'POST'])
 @oidc.require_login
 def depcreate():
-     access_token = oidc.get_access_token()
+     access_token = get_access_token()
 
      if request.method == 'GET':
         return render_template('createdep.html', templates=toscaTemplates, inputs={})
@@ -102,8 +110,11 @@ def depcreate():
            if 'topology_template' not in template:
              flash("Error reading template \"" + selected_tosca + "\": syntax is not correct. Please select another template.");
              return redirect(url_for('depcreate'))
+
+           inputs={}
+           if 'inputs' in template['topology_template']:
+              inputs = template['topology_template']['inputs']
            
-           inputs = template['topology_template']['inputs']
            description = "N/A"
            if 'description' in template:
               description = template['description']
@@ -118,7 +129,7 @@ def createdep():
       
      body= json.dumps(payload)
      
-     access_token = oidc.get_access_token() 
+     access_token = get_access_token() 
 
      url = orchestratorUrl +  "/deployments/"
      headers = {'Content-Type': 'application/json', 'Authorization': 'bearer %s' % (access_token)}
