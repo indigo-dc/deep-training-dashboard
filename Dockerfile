@@ -1,10 +1,17 @@
-FROM tiangolo/meinheld-gunicorn-flask:python3.7
+FROM python:3.7
+
+RUN pip install gunicorn
 
 COPY . /app
+WORKDIR /app/
 
-RUN pip install -r requirements.txt
+ENV PYTHONPATH=/app
 
-ENV PORT 5001
-ENV APP_MODULE orchdashboard:app
+RUN pip install -r /app/requirements.txt
+
+EXPOSE 5001
+
+ENV TIMEOUT 60
+CMD gunicorn --bind 0.0.0.0:5001 --timeout "$TIMEOUT"  orchdashboard:app
 
 
