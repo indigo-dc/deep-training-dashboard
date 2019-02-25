@@ -88,8 +88,9 @@ def depdel(depid=None):
        url = orchestratorUrl + "/deployments/" + depid
        response = requests.delete(url, headers=headers)
        app.logger.info(response)
-       if response.status_code == 403:
-          flash('You are not allowed to delete this deployment');
+       
+       if not response.ok:
+          flash("Error deleting deployment: " + response.text);
   
     return redirect(url_for('home'))
 
