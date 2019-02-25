@@ -100,6 +100,7 @@ def depcreate():
      access_token = oidc.get_access_token()
 
      if not oidc.user_loggedin or access_token is None:
+       oidc.logout()
        return redirect(url_for('home'))
 
      app.logger.debug("access token: " + access_token)
