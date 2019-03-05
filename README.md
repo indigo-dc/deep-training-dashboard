@@ -37,7 +37,7 @@ Create the `client_secrets.json` file (see the [example](app/client_secrets-samp
 ````
 Clone the tosca-templates repository to get a set of tosca templates that the dashboard will load, e.g.:
 ````
-git clone https://github.com/indigo-dc/tosca-templates -v stable/v3.0
+git clone https://github.com/indigo-dc/tosca-templates -b stable/v3.0
 ````
 
 Run the docker container:
