@@ -12,7 +12,7 @@ Functionalities:
 
 Register a client in IAM with the following properties:
 
-- redirect uri: http://<DASHBOARD_HOST>:5001/oidc_callback
+- redirect uri: http://<DASHBOARD_HOST>:<PORT>/oidc_callback
 - scopes: 'openid', 'email', 'profile', 'offline_access'
 - introspection endpoint enabled
 
@@ -59,6 +59,7 @@ Access the dashboard at http://<DASHBOARD_HOST>/
 You would need to provide
 - a pair certificate/key that the container will read from the container paths `/certs/cert.pem` and `/certs/key.pem`;
 - the environment variable `ENABLE_HTTPS` set to `True`
+- change the redirect_uri in the IAM client replacing http with https (https://<DASHBOARD_HOST>:<PORT>/oidc_callback) 
 
 Run the docker container:
 ```
@@ -73,6 +74,7 @@ docker run -d -p 443:5001 --name='orchestrator-dashboard' \
            -v $PWD/tosca-templates:/tosca \
            marica/orchestrator-dashboard:latest
 ```
+Access the dashboard at https://<DASHBOARD_HOST>/
 
 
 ## How to build the docker image
