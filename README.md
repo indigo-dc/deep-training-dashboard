@@ -54,12 +54,33 @@ docker run -d -p 80:5001 --name='orchestrator-dashboard' \
 
 Access the dashboard at http://<DASHBOARD_HOST>/
 
+## Enable HTTPS
+
+You would need to provide
+- a pair certificate/key that the container will read from the container paths `/certs/cert.pem` and `/certs/key.pem`;
+- the environment variable `ENABLE_HTTPS` set to `True`
+
+Run the docker container:
+```
+docker run -d -p 443:5001 --name='orchestrator-dashboard' \
+           -e ORCHESTRATOR_URL=https://deep-paas.cloud.ba.infn.it/orchestrator \
+           -e TOSCA_TEMPLATES_DIR=/tosca -e OIDC_CLIENT_SECRETS=/client_secrets.json \
+           -e OIDC_VALID_ISSUERS=https://iam.deep-hybrid-datacloud.eu/ \
+           -e ENABLE_HTTPS=True \
+           -v $PWD/cert.pem:/certs/cert.pem \
+           -v $PWD/key.pem:/certs/key.pem \
+           -v $PWD/client_secrets.json:/client_secrets.json \
+           -v $PWD/tosca-templates:/tosca \
+           marica/orchestrator-dashboard:latest
+```
+
+
 ## How to build the docker image
 
 ```
 git clone https://github.com/maricaantonacci/orchestrator-dashboard.git
 cd orchestrator-dashboard
-docker build -t orchestrator-dashboard .
+docker build -f docker/Dockerfile -t orchestrator-dashboard .
 ```
 
 
