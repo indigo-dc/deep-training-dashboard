@@ -46,6 +46,7 @@ Run the docker container:
 docker run -d -p 80:5001 --name='orchestrator-dashboard' \
            -e ORCHESTRATOR_URL=https://deep-paas.cloud.ba.infn.it/orchestrator \
            -e TOSCA_TEMPLATES_DIR=/tosca -e OIDC_CLIENT_SECRETS=/client_secrets.json \
+           -e OIDC_VALID_ISSUERS=https://iam.deep-hybrid-datacloud.eu/ \
            -v $PWD/client_secrets.json:/client_secrets.json \
            -v $PWD/tosca-templates:/tosca \
            marica/orchestrator-dashboard:latest
