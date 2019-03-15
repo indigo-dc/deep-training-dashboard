@@ -1,9 +1,10 @@
-from app import app, oidc
+from app import app, iam_blueprint
 from flask import json, current_app, render_template, request, redirect, url_for, flash, session
 import requests, json
 import yaml
 import io, os, sys
 from fnmatch import fnmatch
+from hashlib import md5
 
 
 def to_pretty_json(value):
@@ -11,6 +12,12 @@ def to_pretty_json(value):
                       indent=4, separators=(',', ': '))
 
 app.jinja_env.filters['tojson_pretty'] = to_pretty_json
+
+
+def avatar(email, size):
+  digest = md5(email.lower().encode('utf-8')).hexdigest()
+  return 'https://www.gravatar.com/avatar/{}?d=identicon&s={}'.format(digest, size)
+
 
 toscaDir=app.config.get('TOSCA_TEMPLATES_DIR') + "/"
 toscaTemplates = []
@@ -23,52 +30,49 @@ for path, subdirs, files in os.walk(toscaDir):
 
 orchestratorUrl = app.config.get('ORCHESTRATOR_URL')
 
-@app.route('/')
-@app.route('/home')
-@oidc.require_login
+#@app.route('/')
+@app.route('/login')
+def login():
+    session.clear()
+    return render_template('home.html')
+
+@app.route('/dashboard')
 def home():
-  app.logger.debug("Calling home()")
-  if oidc.user_loggedin:
-     info = oidc.user_getinfo(['preferred_username', 'email', 'sub'])
-     app.logger.info("User logged-in: " + json.dumps(info))
-     username = info.get('preferred_username')
-     user_id = info.get('sub')
-     session['username'] = username 
-     
-     if not oidc.credentials_store:
-        oidc.logout()
-        return redirect(url_for('home'))
 
-     if user_id in oidc.credentials_store:
-        try:
-            access_token = oidc.get_access_token()
-            app.logger.info("Access token: " + access_token)
-            headers = {'Authorization': 'bearer %s' % (access_token)}
-            
-            url = orchestratorUrl +  "/deployments?createdBy=me"
-            response = requests.get(url, headers=headers)
+    if not iam_blueprint.session.authorized:
+       return redirect(url_for('login'))
+    
+    account_info=iam_blueprint.session.get("/userinfo")
 
-            if not response.ok:
-               deployments = {}
-               flash("Error retrieving deployment list: \n" + response.text)
-            else:
-               deployments = response.json()["content"]
+    if account_info.ok:
+        account_info_json = account_info.json()
+        session['username']  = account_info_json['name']
+        session['gravatar'] = avatar(account_info_json['email'], 26)
+        access_token = iam_blueprint.token['access_token']
 
-            return render_template('deployments.html', deployments=deployments, username=username)
+        headers = {'Authorization': 'bearer %s' % (access_token)}
 
-        except Exception as e: 
-            flash("Error: " + str(e))
-            return redirect(url_for('home'))
+        url = orchestratorUrl +  "/deployments?createdBy=me"
+        response = requests.get(url, headers=headers)
+
+        deployments = {}
+        if not response.ok:
+            flash("Error retrieving deployment list: \n" + response.text, 'warning')
+        else:
+            deployments = response.json()["content"]
+        return render_template('deployments.html', deployments=deployments)
+
 
 
 @app.route('/template/<depid>')
 def deptemplate(depid=None):
-    app.logger.debug("Calling deptemplate()")
-    if not oidc.user_loggedin:
-      return redirect(url_for('home'))
 
-    access_token = oidc.get_access_token()
+    if not iam_blueprint.session.authorized:
+       return redirect(url_for('login'))
+
+    access_token = iam_blueprint.session.token['access_token']
     headers = {'Authorization': 'bearer %s' % (access_token)}
+
     url = orchestratorUrl + "/deployments/" + depid + "/template"
     response = requests.get(url, headers=headers)
 
@@ -78,32 +82,29 @@ def deptemplate(depid=None):
 
     template = response.text
     return render_template('deptemplate.html', template=template)
-
+#
 @app.route('/delete/<depid>')
 def depdel(depid=None):
-    app.logger.debug("Calling depdel()")
-    if oidc.user_loggedin:
-       access_token = oidc.get_access_token()
-       headers = {'Authorization': 'bearer %s' % (access_token)}
-       url = orchestratorUrl + "/deployments/" + depid
-       response = requests.delete(url, headers=headers)
-       app.logger.info(response)
+
+    if not iam_blueprint.session.authorized:
+       return redirect(url_for('login'))
+
+    access_token = iam_blueprint.session.token['access_token']
+    headers = {'Authorization': 'bearer %s' % (access_token)}
+    url = orchestratorUrl + "/deployments/" + depid
+    response = requests.delete(url, headers=headers)
        
-       if not response.ok:
-          flash("Error deleting deployment: " + response.text);
+    if not response.ok:
+        flash("Error deleting deployment: " + response.text);
   
     return redirect(url_for('home'))
-
+#
 @app.route('/create', methods=['GET', 'POST'])
 def depcreate():
-     app.logger.debug("Calling depcreate()")
-     access_token = oidc.get_access_token()
+     if not iam_blueprint.session.authorized:
+        return redirect(url_for('login'))
 
-     if not oidc.user_loggedin or access_token is None:
-       oidc.logout()
-       return redirect(url_for('home'))
-
-     app.logger.debug("access token: " + access_token)
+     access_token = iam_blueprint.session.token['access_token']
 
      if request.method == 'GET':
         return render_template('createdep.html', templates=toscaTemplates, inputs={})
@@ -124,24 +125,22 @@ def depcreate():
            if 'description' in template:
               description = template['description']
            return render_template('createdep.html', templates=toscaTemplates, selectedTemplate=selected_tosca, description=description,  inputs=inputs)
-        
- 
+#        
+# 
 @app.route('/submit', methods=['POST'])
 def createdep():
-  app.logger.debug("Calling createdep()")
 
-  access_token = oidc.get_access_token()
+  if not iam_blueprint.session.authorized:
+     return redirect(url_for('login'))
 
-  if not oidc.user_loggedin or access_token is None:
-     return redirect(url_for('home'))
+  access_token = iam_blueprint.session.token['access_token']
+
 
   try:
      with io.open( toscaDir + request.args.get('template')) as stream:   
         payload = { "template" : stream.read(), "parameters": request.form.to_dict() }
       
      body= json.dumps(payload)
-     
-     app.logger.debug("access token: " + access_token)
 
      url = orchestratorUrl +  "/deployments/"
      headers = {'Content-Type': 'application/json', 'Authorization': 'bearer %s' % (access_token)}
@@ -155,3 +154,10 @@ def createdep():
      app.logger.error("Error submitting deployment:" + str(e))
      return redirect(url_for('home'))
 
+
+@app.route('/logout')
+def logout():
+   session.clear()
+   iam_blueprint.session.get("/logout")
+#   del iam_blueprint.session.token
+   return redirect(url_for('login'))
