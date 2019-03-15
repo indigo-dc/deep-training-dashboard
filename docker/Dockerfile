@@ -11,6 +11,7 @@ EXPOSE 5001
 
 ENV TIMEOUT 60
 ENV ENABLE_HTTPS False
+ENV WORKERS 1
 
 COPY ./docker/start.sh /start.sh
 
