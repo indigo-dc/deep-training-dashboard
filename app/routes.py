@@ -37,6 +37,7 @@ def login():
     return render_template('home.html')
 
 @app.route('/dashboard')
+@app.route('/')
 def home():
 
     if not iam_blueprint.session.authorized:
