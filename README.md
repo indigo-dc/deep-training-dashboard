@@ -38,7 +38,7 @@ You need to run the Orchestrator dashboard on HTTPS (otherwise you will get an e
 
 Details are provided in the next paragraphs.
 
-### Enable HTTPS
+### Enabling HTTPS
 
 You would need to provide
 - a pair certificate/key that the container will read from the container paths `/certs/cert.pem` and `/certs/key.pem`;
