@@ -51,7 +51,7 @@ docker run -d -p 443:5001 --name='orchestrator-dashboard' \
            -e ENABLE_HTTPS=True \
            -v $PWD/cert.pem:/certs/cert.pem \
            -v $PWD/key.pem:/certs/key.pem \
-           -v $PWD/config.json:/app/config.json \
+           -v $PWD/config.json:/app/app/config.json \
            -v $PWD/tosca-templates:/opt/tosca-templates \
            marica/orchestrator-dashboard:latest
 ```
@@ -97,7 +97,7 @@ Run the docker container:
 
 ```
 docker run -d -p 5001:5001 --name='orchestrator-dashboard' \
-           -v $PWD/config.json:/app/config.json \
+           -v $PWD/config.json:/app/app/config.json \
            -v $PWD/tosca-templates:/opt/tosca-templates \
            marica/orchestrator-dashboard:latest
 ```
