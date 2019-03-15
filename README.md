@@ -8,6 +8,11 @@ Functionalities:
 - Delete deployment
 - Create new deployment
 
+The orchestrator-dashboard is a Python application built with the [Flask](http://flask.pocoo.org/) microframework; [Flask-Dance](https://flask-dance.readthedocs.io/en/latest/) is used for Openid-Connect/OAuth2 integration.
+
+
+The docker image uses [Gunicorn](https://gunicorn.org/) as WSGI HTTP server to serve the Flask Application.
+
 # How to deploy the dashboard
 
 Register a client in IAM with the following properties:
@@ -105,7 +110,11 @@ docker run -d -p 5001:5001 --name='orchestrator-dashboard' \
 
 Access the dashboard at `https://<PROXY_HOST>/`
 
+### Performance tuning
 
+You can change the number of gunicorn worker processes using the environment variable WORKERS.
+E.g. if you want to use 2 workers, launch the container with the option `-e WORKERS=2`
+Check the [documentation](http://docs.gunicorn.org/en/stable/design.html#how-many-workers) for ideas on tuning this parameter.
 
 ## How to build the docker image
 
