@@ -12,69 +12,96 @@ Functionalities:
 
 Register a client in IAM with the following properties:
 
-- redirect uri: `http://<DASHBOARD_HOST>:<PORT>/oidc_callback`
+- redirect uri: `https://<DASHBOARD_HOST>:<PORT>/login/iam/authorized`
 - scopes: 'openid', 'email', 'profile', 'offline_access'
 - introspection endpoint enabled
 
-Create the `client_secrets.json` file (see the [example](app/client_secrets-sample.json)):
+Create the `config.json` file (see the [example](app/config-sample.json)):
 
 ````
 {
-    "web": {
-        "issuer": "https://iam.deep-hybrid-datacloud.eu",
-        "auth_uri": "https://iam.deep-hybrid-datacloud.eu/authorize",
-        "client_id": "*****",
-        "client_secret": "*****",
-        "redirect_uris": [
-            "http://<DASHBOARD_HOST>/*"
-        ],
-        "userinfo_uri": "https://iam.deep-hybrid-datacloud.eu/userinfo",
-        "token_uri": "https://iam.deep-hybrid-datacloud.eu/token",
-        "token_introspection_uri": "https://iam.deep-hybrid-datacloud.eu/introspect"
-    }
+    "IAM_CLIENT_ID": "*****",
+    "IAM_CLIENT_SECRET": "*****",
+    "IAM_BASE_URL": "https://iam-test.indigo-datacloud.eu",
+    "ORCHESTRATOR_URL": "https://indigo-paas.cloud.ba.infn.it/orchestrator",
+    "TOSCA_TEMPLATES_DIR": "/opt/tosca-templates"
 }
-
 ````
 Clone the tosca-templates repository to get a set of tosca templates that the dashboard will load, e.g.:
 ````
 git clone https://github.com/indigo-dc/tosca-templates -b stable/v3.0
 ````
 
-Run the docker container:
+You need to run the Orchestrator dashboard on HTTPS (otherwise you will get an error); you can choose between
+- enabling the HTTPS support as described in ...
+- using an HTTPS proxy
 
-```
-docker run -d -p 80:5001 --name='orchestrator-dashboard' \
-           -e ORCHESTRATOR_URL=https://deep-paas.cloud.ba.infn.it/orchestrator \
-           -e TOSCA_TEMPLATES_DIR=/tosca -e OIDC_CLIENT_SECRETS=/client_secrets.json \
-           -e OIDC_VALID_ISSUERS=https://iam.deep-hybrid-datacloud.eu/ \
-           -v $PWD/client_secrets.json:/client_secrets.json \
-           -v $PWD/tosca-templates:/tosca \
-           marica/orchestrator-dashboard:latest
-```
-
-Access the dashboard at `http://<DASHBOARD_HOST>/`
-
-## Enable HTTPS
+### Enable HTTPS
 
 You would need to provide
 - a pair certificate/key that the container will read from the container paths `/certs/cert.pem` and `/certs/key.pem`;
 - the environment variable `ENABLE_HTTPS` set to `True`
-- change the redirect_uri in the IAM client replacing http with https (`https://<DASHBOARD_HOST>:<PORT>/oidc_callback`) 
+ 
 
 Run the docker container:
 ```
 docker run -d -p 443:5001 --name='orchestrator-dashboard' \
-           -e ORCHESTRATOR_URL=https://deep-paas.cloud.ba.infn.it/orchestrator \
-           -e TOSCA_TEMPLATES_DIR=/tosca -e OIDC_CLIENT_SECRETS=/client_secrets.json \
-           -e OIDC_VALID_ISSUERS=https://iam.deep-hybrid-datacloud.eu/ \
            -e ENABLE_HTTPS=True \
            -v $PWD/cert.pem:/certs/cert.pem \
            -v $PWD/key.pem:/certs/key.pem \
-           -v $PWD/client_secrets.json:/client_secrets.json \
-           -v $PWD/tosca-templates:/tosca \
+           -v $PWD/config.json:/app/config.json \
+           -v $PWD/tosca-templates:/opt/tosca-templates \
            marica/orchestrator-dashboard:latest
 ```
 Access the dashboard at `https://<DASHBOARD_HOST>/`
+
+### Using an HTTPS Proxy 
+
+Example of configuration for nginx:
+```
+server {
+      listen         80;
+      server_name    YOUR_SERVER_NAME;
+      return         301 https://$server_name$request_uri;
+}
+
+server {
+  listen        443 ssl;
+  server_name   YOUR_SERVER_NAME;
+  access_log    /var/log/nginx/proxy-paas.access.log  combined;
+
+  ssl on;
+  ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+  ssl_certificate           /etc/nginx/cert.pem;
+  ssl_certificate_key       /etc/nginx/key.pem;
+  ssl_trusted_certificate   /etc/nginx/trusted_ca_cert.pem;
+
+  location / {
+                # Pass the request to Gunicorn
+                proxy_pass http://127.0.0.1:5001/;
+
+                proxy_set_header        X-Real-IP $remote_addr;
+                proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header        X-Forwarded-Proto https;
+                proxy_set_header        Host $http_host;
+                proxy_redirect          http:// https://;
+                proxy_buffering         off;
+  }
+
+}
+```
+
+Run the docker container:
+
+```
+docker run -d -p 5001:5001 --name='orchestrator-dashboard' \
+           -v $PWD/config.json:/app/config.json \
+           -v $PWD/tosca-templates:/opt/tosca-templates \
+           marica/orchestrator-dashboard:latest
+```
+
+Access the dashboard at `https://<PROXY_HOST>/`
+
 
 
 ## How to build the docker image
