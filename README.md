@@ -101,6 +101,7 @@ docker run -d -p 5001:5001 --name='orchestrator-dashboard' \
            -v $PWD/tosca-templates:/opt/tosca-templates \
            marica/orchestrator-dashboard:latest
 ```
+:warning: Remember to update the redirect uri in the IAM client to `https://<PROXY_HOST>/login/iam/authorized`
 
 Access the dashboard at `https://<PROXY_HOST>/`
 
