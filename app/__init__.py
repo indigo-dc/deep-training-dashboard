@@ -1,10 +1,12 @@
 from flask import Flask
+from werkzeug.contrib.fixers import ProxyFix
 from flask_dance.consumer import OAuth2ConsumerBlueprint
 import logging
 
 logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app)
 app.secret_key="this.is.my.secretkey"
 app.config.from_json('config.json')
 
