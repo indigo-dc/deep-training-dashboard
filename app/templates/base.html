@@ -12,14 +12,30 @@
         <nav class="navbar navbar-inverse">
           <div class="container-fluid">
              <div class="navbar-header">
-                <a class="navbar-brand" href="/home">PaaS Orchestrator Dashboard</a>
+		<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+                  <span class="icon-bar"></span>
+                  <span class="icon-bar"></span>
+                  <span class="icon-bar"></span>
+		</button>
+                <a class="navbar-brand" href="">PaaS Orchestrator Dashboard</a>
              </div>
-             {% if session['username'] %}
-             <ul class="nav navbar-nav navbar-right navbar-text">
-               <li><span class="glyphicon glyphicon-user"></span> {{ session['username'] }}</li>
-             </ul>
-             {% endif %}
-          </div>
+	     <div class="collapse navbar-collapse" id="myNavbar">
+	       <ul class="nav navbar-nav">
+		 <li class="active"><a href="{{ url_for("home") }}">Home</a></li>
+	       </ul>	 
+	       {% if session['username'] %}
+               <ul class="nav navbar-nav navbar-right">
+	         <li class="dropdown">
+			 <a class="dropdown-toggle" data-toggle="dropdown" href="#"><img class="img-circle" src="{{ session['gravatar'] }}"</src> {{ session['username'] }}<span class="caret"></span></a>
+		       <ul class="dropdown-menu">
+			       <!--<li><a href="https://iam-test.indigo-datacloud.eu/logout?post_logout_redirect_uri=https://cloud-90-147-75-120.cloud.ba.infn.it">Logout</a></li> -->
+                         <li><a href="{{ url_for("logout") }}">Logout</a></li>
+		       </ul>
+	         </li>
+               </ul>
+	       {% endif %}
+             </div>
+	  </div>
         </nav>
         {% block content %}{% endblock %}
     </body>
