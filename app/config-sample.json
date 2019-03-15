@@ -1,0 +1,7 @@
+{
+    "IAM_CLIENT_ID": "my_client_id",
+    "IAM_CLIENT_SECRET": "my_client_secret",
+    "IAM_BASE_URL": "https://iam-test.indigo-datacloud.eu",
+    "ORCHESTRATOR_URL": "https://indigo-paas.cloud.ba.infn.it/orchestrator",
+    "TOSCA_TEMPLATES_DIR": "/opt/tosca-templates"
+}
