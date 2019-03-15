@@ -33,8 +33,10 @@ git clone https://github.com/indigo-dc/tosca-templates -b stable/v3.0
 ````
 
 You need to run the Orchestrator dashboard on HTTPS (otherwise you will get an error); you can choose between
-- enabling the HTTPS support as described in ...
+- enabling the HTTPS support
 - using an HTTPS proxy
+
+Details are provided in the next paragraphs.
 
 ### Enable HTTPS
 
