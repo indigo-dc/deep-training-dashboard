@@ -15,10 +15,10 @@
 {% endwith %}
 <div class=text-left>
 <h3>My deployments:</h3>
-<button type=button class="btn btn-primary" onclick="location.href='{{ url_for("depcreate") }}'">New deployment</button>
 </div>
-<div class=text-right>
-  <button class="btn btn-primary" onclick="location.href='{{ url_for("home") }}'"><span class="glyphicon glyphicon-refresh"></span> Refresh</button>
+<div class="well well-small">
+  <button class="btn btn-small btn-default" onclick="location.href='{{ url_for("home") }}'"><span class="glyphicon glyphicon-refresh"></span> Refresh</button>
+  <button type=button class="btn btn-small btn-primary" onclick="location.href='{{ url_for("depcreate") }}'"><span class="glyphicon glyphicon-plus"></span> New deployment</button>
 </div>
   <div class="panel-group" id="accordion">
     {% for dep in deployments %}
