@@ -27,6 +27,8 @@
        </select>
      </div>
      <button type="submit" class="btn btn-success">Configure</button>
+     <br> <!-- this fix wrong dropdown menu on firefox for small container size -->
+     <br> <!-- this fix wrong dropdown menu on firefox for small container size -->
   </form>
 
   {% if selectedTemplate is defined %}
@@ -37,48 +39,13 @@
         <strong>Description:</strong> {{description}}
       </div>
       {% endif %}
-    
-      {% if inputs|length > 0 %}
-      <h2>Set input values:</h2>
+
+      {% if enable_rich_form %}
+        {% include 'rich_form.html' %}
+      {% else %}
+        {% include 'default_form.html' %}
       {% endif %}
-      <form id="depSubmit" action="{{ url_for('createdep', template=selectedTemplate) }}" method="post">
-        <input type="hidden" id="noinputId" name="noinput" value="">
-        {% if inputs|length > 0 %}
-        {% for key, value in inputs.items() %}
-        <div class="form-group">
-          <label for="{{key}}">{{key}}</label>
-          <input {% if 'password' in key %}type="password"{% else %}type="text"{% endif %} class="form-control" id="{{key}}" name="{{key}}" value="{{value.default}}" aria-describedby="help{{key}}" />
-          <span id="help{{key}}" class="help-block">{{value.description}}</span>
-        </div>
-        {% endfor %}
-        {% endif %}
-        <div class="form-group">
-          <p><h2>Configure scheduling:</h2></p>
-          <label class="radio-inline">
-            <input id="autosched" type="radio" name="extra_opts.schedtype" value="auto" checked>Auto
-          </label>
-	  <label class="radio-inline">
-            <input id="mansched" type="radio" name="extra_opts.schedtype" value="man">Manual
-          </label>
-	</div>
-	<div id="autoschedConf" class="form-group">
-	   <label for="keepLastAttempt">Do not delete the deployment in case of failure
-		  <input type="checkbox" id="keepLastAttempt" name="extra_opts.keepLastAttempt" value="">
-	   </label>
-	</div>	
-	<div id="manschedConf" class="form-group">
-	  <label for="keepLastAttempt">Do not delete the deployment in case of failure
-                  <input type="checkbox" id="keepLastAttempt" name="extra_opts.keepLastAttempt" value="">
-	  </label><p><p>
-          <label>Select a provider:</label>
-          <select class="form-control" id="selectSLA" name="extra_opts.selectedSLA">
-          {% for sla in slas %}
-            <option name="selectedSLA" value={{sla.id}}>{{sla.sitename}}: {{sla.service_type}}</option>
-          {% endfor %}
-          </select>
-        </div>	
-        <button type="submit" class="btn btn-success submitBtn">Submit</button>
-      </form>
+    
   {% endif %}
 </div>
 
@@ -87,6 +54,7 @@
   display: none;
 }
 </style>
+
 <script>
 $(document).ready(function() {
     $('.js-example-basic-single').select2();

@@ -1,0 +1,56 @@
+<!-- start tabs creation section -->
+<ul class="nav nav-tabs">
+{% if tabs|length > 0 %}
+  {% for tab in tabs %}
+    {% if loop.first %}
+      <li class="active"><a data-toggle="tab" href=#{{tab}}>{{tab}}</a></li>
+    {% else %}
+      <li><a data-toggle="tab" href=#{{tab}}>{{tab}}</a></li>
+    {% endif %}
+  {% endfor %}
+{% else %}
+  <li class="active"><a data-toggle="tab" href=#InputValues>Input Values</a></li>
+{% endif %}
+<li><a data-toggle="tab" href=#Advanced>Advanced</a></li> <!-- always create advanced tab -->
+</ul>
+<!-- end tab creation section -->
+
+
+<form id="depSubmit" action="{{ url_for('createdep', template=selectedTemplate) }}" method="post">
+  <!-- input type="hidden" id="noinputId" name="noinput" value="" -->
+
+    <div class="tab-content">
+      <!-- inputs -->
+      {% if tabs|length > 0 %}
+        {% for tab in tabs %}
+          {% if loop.first %}
+            <div id={{tab}} class="tab-pane fade in active">
+          {% else %}
+            <div id={{tab}} class="tab-pane fade">
+          {% endif %}
+
+          <br>
+          {% for key, value in inputs.items() %}
+            {% if value.tab == tab %}
+              {% include 'rich_input.html' %}
+            {% endif %}
+          {% endfor %}
+          </div>
+        {% endfor %}
+
+      {% else %} <!-- no tabs -->
+        <div id=InputValues class="tab-pane fade in active">
+          {% for key, value in inputs.items() %}
+            {% include 'rich_input.html' %}
+          {% endfor %}
+        </div>
+      {% endif %}
+      <!-- end inputs -->
+
+      <!-- scheduling -->
+      <div id="Advanced" class="tab-pane fade">
+        {% include 'scheduling.html' %}
+      </div>
+    </div>
+  <button type="submit" class="btn btn-success submitBtn">Submit</button>
+</form>

@@ -28,6 +28,9 @@ for path, subdirs, files in os.walk(toscaDir):
             if name[0] != '.': 
                toscaTemplates.append( os.path.relpath(os.path.join(path, name), toscaDir ))
 
+if app.config.get('TOSCA_PARAMETERS_DIR') is not None:
+  tosca_pars_dir=app.config.get('TOSCA_PARAMETERS_DIR') + "/"
+
 orchestratorUrl = app.config.get('ORCHESTRATOR_URL')
 slamUrl = app.config.get('SLAM_URL')
 cmdbUrl = app.config.get('CMDB_URL')
@@ -188,13 +191,36 @@ def depcreate():
            inputs={}
            if 'inputs' in template['topology_template']:
               inputs = template['topology_template']['inputs']
-           
+
+           ## add parameters code here
+           enable_rich_form = False
+           tabs={}
+           if tosca_pars_dir is not None:
+             for path, subdirs, files in os.walk(tosca_pars_dir):
+               for name in files:
+                 if fnmatch(name, os.path.splitext(selected_tosca)[0]+"*.parameters.yml") or fnmatch(name, os.path.splitext(selected_tosca)[0]+"*.parameters.yaml"):
+                   # skip hidden files
+                   if name[0] != '.':
+                     tosca_pars_file = os.path.join(path, name)
+                     with io.open(tosca_pars_file) as pars_file:
+                       enable_rich_form = True
+                       pars_data = yaml.load(pars_file)
+                       inputs = pars_data["inputs"]
+                       if( "tabs" in pars_data ): tabs = pars_data["tabs"]
+ 
            description = "N/A"
            if 'description' in template:
               description = template['description']
 
            slas = get_slas(access_token)
-           return render_template('createdep.html', templates=toscaTemplates, selectedTemplate=selected_tosca, description=description,  inputs=inputs, slas=slas)
+           return render_template('createdep.html', 
+                                  templates=toscaTemplates,
+                                  selectedTemplate=selected_tosca,
+                                  description=description,
+                                  inputs=inputs,
+                                  slas=slas,
+                                  enable_rich_form=enable_rich_form,
+                                  tabs=tabs)
 
 def add_sla_to_template(template, sla_id):
     # Add the placement policy
