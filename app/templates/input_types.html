@@ -4,7 +4,7 @@
 
     <!-- text type -->
     {% if value.tag_type == "text" %}
-      <input type="text" class="form-control" id="{{key}}" name="{{key}}" value="{{value.default}}" aria-describedby="help{{key}}" />
+      <input type="text" class="form-control" id="{{key}}" name="{{key}}" value="{{value.default}}" aria-describedby="help{{key}}" {% if value.required %}required{%endif%} />
     <!-- end select type -->
 
     <!-- email type -->
