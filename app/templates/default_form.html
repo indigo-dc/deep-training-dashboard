@@ -5,33 +5,29 @@
 </ul>
 <!-- end tab creation section -->
 
+<form id="depSubmit" action="{{ url_for('createdep', template=selectedTemplate) }}" method="post">
+  <div class="tab-content">
 
-      <form id="depSubmit" action="{{ url_for('createdep', template=selectedTemplate) }}" method="post">
-        <input type="hidden" id="noinputId" name="noinput" value="">
-
-        <div class="tab-content">
-
-          <!-- inputs -->
-          <div id=InputValues class="tab-pane fade in active">
-            {% if inputs|length > 0 %}
-              {% for key, value in inputs.items() %}
-                <div class="form-group">
-                  <label for="{{key}}">{{key}}</label>
-                  <input {% if 'password' in key %}type="password"{% else %}type="text"{% endif %} class="form-control" id="{{key}}" name="{{key}}" value="{{value.default}}" aria-describedby="help{{key}}" />
-                  <span id="help{{key}}" class="help-block">{{value.description}}</span>
-                </div>
-              {% endfor %}
-            {% else %}
-              <h2>No input value to submit.</h2>
-            {% endif %}
+    <!-- inputs -->
+    <div id=InputValues class="tab-pane fade in active">
+      {% if inputs|length > 0 %}
+        {% for key, value in inputs.items() %}
+          <div class="form-group">
+            <label for="{{key}}">{{key}}</label>
+            <input {% if 'password' in key %}type="password"{% else %}type="text"{% endif %} class="form-control" id="{{key}}" name="{{key}}" value="{{value.default}}" aria-describedby="help{{key}}" {% if value.required %}required{%endif%} />
+            <span id="help{{key}}" class="help-block">{{value.description}}</span>
           </div>
-          <!-- end inputs -->
+        {% endfor %}
+      {% else %}
+        <h2>No input value to submit.</h2>
+      {% endif %}
+    </div>
+    <!-- end inputs -->
 
-          <!-- scheduling -->
-          <div id="Advanced" class="tab-pane fade">
-            {% include 'scheduling.html' %}
-          </div>
+    <!-- scheduling -->
+    <div id="Advanced" class="tab-pane fade">
+      {% include 'scheduling.html' %}
+    </div>
 
-        <button type="submit" class="btn btn-success submitBtn">Submit</button>
-      </form>
-
+  <button type="submit" class="btn btn-success submitBtn">Submit</button>
+</form>

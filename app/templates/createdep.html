@@ -18,7 +18,7 @@
   <form name="tosca_template" action="{{ url_for('depcreate') }}" method='POST'>
      <div class="form-group">
        <label for="sel1">Select TOSCA Template:</label>
-       <select class="js-example-basic-single" name="tosca_template">
+       <select class="js-example-basic-single js-states form-control" name="tosca_template">
           <!-- <option value="" selected disabled>-->
           <!-- <option hidden selected disabled >Select a template...</option> -->
           {% for tosca in templates %}

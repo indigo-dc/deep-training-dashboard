@@ -1,47 +1,46 @@
+<div class="form-group">
+  <label for="{{key}}">{% if value.display_name is defined %}{{value.display_name}}{% else %}{{key}}{% endif %}</label>
+  {% if value.tag_type is defined %}
 
-        <div class="form-group">
-          <label for="{{key}}">{% if value.display_name is defined %}{{value.display_name}}{% else %}{{key}}{% endif %}</label>
-          {% if value.tag_type is defined %}
+    <!-- text type -->
+    {% if value.tag_type == "text" %}
+      <input type="text" class="form-control" id="{{key}}" name="{{key}}" value="{{value.default}}" aria-describedby="help{{key}}" />
+    <!-- end select type -->
 
-            <!-- text type -->
-            {% if value.tag_type == "text" %}
-              <input type="text" class="form-control" id="{{key}}" name="{{key}}" value="{{value.default}}" aria-describedby="help{{key}}" />
-            <!-- end select type -->
+    <!-- email type -->
+    {% elif value.tag_type == "email" %}
+      <input type="email" class="form-control" id="{{key}}" name="{{key}}" placeholder="Enter your email" {% if value.required %}required{%endif%} >
+    <!-- end email type -->
 
-            <!-- email type -->
-            {% elif value.tag_type == "email" %}
-              <input type="email" class="form-control" id="{{key}}" name="{{key}}" placeholder="Enter your email" {% if value.required %}required{%endif%} >
-            <!-- end email type -->
+    <!-- password type -->
+    {% elif value.tag_type == "password" %}
+      <input type="password" class="form-control" id="{{key}}" name="{{key}}" placeholder="Enter your password" {% if value.required %}required{%endif%} >
+    <!-- end password type -->
 
-            <!-- password type -->
-            {% elif value.tag_type == "password" %}
-              <input type="password" class="form-control" id="{{key}}" name="{{key}}" placeholder="Enter your password" {% if value.required %}required{%endif%} >
-            <!-- end password type -->
+    <!-- select type -->
+    {% elif value.tag_type == "select" %}
+      <select class="js-example-basic-single js-states form-control" name={{key}}>
+      {% for constraint in value.constraints %}
+        <option value="{{constraint['value']}}">{{constraint['label']}}</option>
+      {% endfor %}
+      </select>
+    <!-- end select type -->
 
-            <!-- select type -->
-            {% elif value.tag_type == "select" %}
-              <select class="js-example-basic-single" name={{key}}>
-              {% for constraint in value.constraints %}
-                <option value="{{constraint['value']}}">{{constraint['label']}}</option>
-              {% endfor %}
-              </select>
-            <!-- end select type -->
+    <!-- radio type -->
+    {% elif value.tag_type == "radio" %}
+      {% for constraint in value.constraints %}
+        {% if loop.first %}
+          <br><input type="radio" name={{key}} value={{constraint['value']}} checked> {{constraint['label']}}<br>
+        {% else %}
+          <input type="radio" name={{key}} value={{constraint['value']}}> {{constraint['label']}}<br>
+        {% endif %}
+      {% endfor %}
+    <!-- end radio type -->
 
-            <!-- radio type -->
-            {% elif value.tag_type == "radio" %}
-              {% for constraint in value.constraints %}
-                {% if loop.first %}
-                  <br><input type="radio" name={{key}} value={{constraint['value']}} checked> {{constraint['label']}}<br>
-                {% else %}
-                  <input type="radio" name={{key}} value={{constraint['value']}}> {{constraint['label']}}<br>
-                {% endif %}
-              {% endfor %}
-            <!-- end radio type -->
+    {% endif %} <!-- end tag type if -->
 
-            {% endif %}
-          {% else %}
-            <input {% if 'password' in key %}type="password"{% else %}type="text"{% endif %} class="form-control" id="{{key}}" name="{{key}}" value="{{value.default}}" aria-describedby="help{{key}}" />
-          {% endif %}  <!-- end tag type existence if -->
-          <span id="help{{key}}" class="help-block">{{value.description}}</span>
-        </div>
-
+  {% else %}
+    <input {% if 'password' in key %}type="password"{% else %}type="text"{% endif %} class="form-control" id="{{key}}" name="{{key}}" value="{{value.default}}" aria-describedby="help{{key}}" {% if value.required %}required{%endif%} />
+  {% endif %}  <!-- end tag type existence if -->
+  <span id="help{{key}}" class="help-block">{{value.description}}</span>
+</div>
