@@ -198,7 +198,7 @@ def depcreate():
            if tosca_pars_dir is not None:
              for path, subdirs, files in os.walk(tosca_pars_dir):
                for name in files:
-                 if fnmatch(name, os.path.splitext(selected_tosca)[0]+"*.parameters.yml") or fnmatch(name, os.path.splitext(selected_tosca)[0]+"*.parameters.yaml"):
+                 if fnmatch(name, os.path.splitext(selected_tosca)[0]+".parameters.yml") or fnmatch(name, os.path.splitext(selected_tosca)[0]+".parameters.yaml"):
                    # skip hidden files
                    if name[0] != '.':
                      tosca_pars_file = os.path.join(path, name)
