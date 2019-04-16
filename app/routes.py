@@ -193,7 +193,7 @@ def depcreate():
               inputs = template['topology_template']['inputs']
 
            ## add parameters code here
-           enable_rich_form = False
+           enable_config_form = False
            tabs={}
            if tosca_pars_dir is not None:
              for path, subdirs, files in os.walk(tosca_pars_dir):
@@ -203,7 +203,7 @@ def depcreate():
                    if name[0] != '.':
                      tosca_pars_file = os.path.join(path, name)
                      with io.open(tosca_pars_file) as pars_file:
-                       enable_rich_form = True
+                       enable_config_form = True
                        pars_data = yaml.load(pars_file)
                        inputs = pars_data["inputs"]
                        if( "tabs" in pars_data ): tabs = pars_data["tabs"]
@@ -219,7 +219,7 @@ def depcreate():
                                   description=description,
                                   inputs=inputs,
                                   slas=slas,
-                                  enable_rich_form=enable_rich_form,
+                                  enable_config_form=enable_config_form,
                                   tabs=tabs)
 
 def add_sla_to_template(template, sla_id):
