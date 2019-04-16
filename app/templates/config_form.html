@@ -32,7 +32,7 @@
           <br>
           {% for key, value in inputs.items() %}
             {% if value.tab == tab %}
-              {% include 'rich_input.html' %}
+              {% include 'input_types.html' %}
             {% endif %}
           {% endfor %}
           </div>
@@ -41,7 +41,7 @@
       {% else %} <!-- no tabs -->
         <div id=InputValues class="tab-pane fade in active">
           {% for key, value in inputs.items() %}
-            {% include 'rich_input.html' %}
+            {% include 'input_types.html' %}
           {% endfor %}
         </div>
       {% endif %}
