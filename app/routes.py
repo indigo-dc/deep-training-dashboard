@@ -28,8 +28,7 @@ for path, subdirs, files in os.walk(toscaDir):
             if name[0] != '.': 
                toscaTemplates.append( os.path.relpath(os.path.join(path, name), toscaDir ))
 
-if app.config.get('TOSCA_PARAMETERS_DIR') is not None:
-  tosca_pars_dir=app.config.get('TOSCA_PARAMETERS_DIR') + "/"
+tosca_pars_dir = app.config.get('TOSCA_PARAMETERS_DIR')
 
 orchestratorUrl = app.config.get('ORCHESTRATOR_URL')
 slamUrl = app.config.get('SLAM_URL')
@@ -69,7 +68,7 @@ def get_slas(access_token):
 
     url = slamUrl + "/rest/slam/preferences/" + session['organisation_name']
     verify = True
-    if slam_cert: 
+    if slam_cert:
         verify = slam_cert
     response = requests.get(url, headers=headers, timeout=20, verify=verify)
     app.logger.info("SLA response status: " + str(response.status_code))
@@ -199,8 +198,9 @@ def depcreate():
            ## add parameters code here
            enable_config_form = False
            tabs={}
-           if tosca_pars_dir is not None:
-             for path, subdirs, files in os.walk(tosca_pars_dir):
+           if tosca_pars_dir:
+             tosca_pars_path = tosca_pars_dir + "/" # this has to be reassigned here because is local.
+             for path, subdirs, files in os.walk(tosca_pars_path):
                for name in files:
                  if fnmatch(name, os.path.splitext(selected_tosca)[0]+".parameters.yml") or fnmatch(name, os.path.splitext(selected_tosca)[0]+".parameters.yaml"):
                    # skip hidden files
