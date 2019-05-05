@@ -13,13 +13,27 @@
 {% endfor %}
 {% endif %}
 {% endwith %}
-<div class=text-left>
-  <h3>Service Level Agreements:</h3>
-</div>
-<div class="well well-small">
-  <button class="btn btn-small btn-primary" onclick="location.href='{{ url_for("getslas") }}'"><span class="fas fa-sync"></span> Refresh</button>
-</div>
-<br>
+
+  <br>
+  <div class="header">
+    <div class="container-fluid">
+      <!-- Body -->
+      <div class="header-body">
+        <div class="row">
+          <div class="col-md-6">
+            <!-- Title -->
+            <h3 class="header-title">Service Level Agreements:</h3>
+          </div>
+          <div class="col-md-6 text-right">
+            <!-- Button -->
+            <button class="btn btn-small btn-primary" onclick="location.href='{{ url_for("getslas") }}'"><span class="fas fa-sync"></span> Refresh</button>
+          </div>
+        </div> <!-- / .row -->
+      </div> <!-- / .header-body -->
+    </div>
+  </div>
+  <br>
+
 <div class="table-responsive">
   <table class="table table-striped">
     <thead>
