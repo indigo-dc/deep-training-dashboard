@@ -16,16 +16,25 @@
 
 <div class="container">
   <h2>Settings</h2>
-  <div class="panel-group">
-    <div class="panel panel-info">
-      <div class="panel-heading"><strong>IAM</strong></div>
-      <div class="panel-body">{{ iam_url }}</div>
+
+  <div class="card">
+    <div class="card-header">
+      <strong>IAM</strong>
     </div>
-    <div class="panel panel-info">
-      <div class="panel-heading"><strong>Orchestrator</strong></div>
-      <div  class="panel-body">{{ orchestrator_url }}</div>
+    <div class="card-body">
+      {{ iam_url }}
     </div>
   </div>
+
+  <div class="card">
+    <div class="card-header">
+      <strong>Orchestrator</strong>
+    </div>
+    <div class="card-body">
+       {{ orchestrator_url }}
+    </div>
+  </div>
+
 </div> 
 
 
