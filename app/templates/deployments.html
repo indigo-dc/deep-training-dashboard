@@ -88,7 +88,7 @@
         <p><b>CREATED AT</b> {{dep.creationTime}}</p>
         <p><b>UPDATED AT</b> {{dep.updateTime}}</p>
         <p><b>DEPLOYED AT</b> {{dep.cloudProviderName}}</p>
-        <p><b>OUTPUTS</b><pre> {{dep.outputs | tojson_pretty() | safe }}</pre></p>
+        <p><b>OUTPUTS</b><pre>{{dep.outputs | tojson_pretty() | safe }}</pre></p>
         <button type=button class="btn btn-primary" onclick="location.href='{{ url_for("deptemplate", depid=dep.uuid) }}'">
            <span class="fas fa-search"></span> show template</button>
         <!-- DELETE -->
