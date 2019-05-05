@@ -3,15 +3,15 @@
 {% if tabs|length > 0 %}
   {% for tab in tabs %}
     {% if loop.first %}
-      <li class="active"><a data-toggle="tab" href=#{{tab}}>{{tab}}</a></li>
+      <li class="nav-item"><a class="nav-link active" data-toggle="tab" href=#{{tab}}>{{tab}}</a></li>
     {% else %}
-      <li><a data-toggle="tab" href=#{{tab}}>{{tab}}</a></li>
+      <li class="nav-item"><a class="nav-link" data-toggle="tab" href=#{{tab}}>{{tab}}</a></li>
     {% endif %}
   {% endfor %}
 {% else %}
-  <li class="active"><a data-toggle="tab" href=#InputValues>Input Values</a></li>
+  <li class="nav-item"><a class="nav-link" data-toggle="tab" href=#InputValues>Input Values</a></li>
 {% endif %}
-<li><a data-toggle="tab" href=#Advanced>Advanced</a></li> <!-- always create advanced tab -->
+<li class="nav-item"><a class="nav-link" data-toggle="tab" href=#Advanced>Advanced</a></li> <!-- always create advanced tab -->
 </ul>
 <!-- end tab creation section -->
 
@@ -23,7 +23,7 @@
       {% if tabs|length > 0 %}
         {% for tab in tabs %}
           {% if loop.first %}
-            <div id={{tab}} class="tab-pane fade in active">
+            <div id={{tab}} class="tab-pane fade show active">
           {% else %}
             <div id={{tab}} class="tab-pane fade">
           {% endif %}
