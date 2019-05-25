@@ -22,11 +22,11 @@
           <!-- <option value="" selected disabled>-->
           <!-- <option hidden selected disabled >Select a template...</option> -->
           {% for tosca in templates %}
-          <option name="tosca_template">{{tosca}}</option>
+          <option name="tosca_template" {%if selectedTemplate is defined %}{% if tosca == selectedTemplate %}selected{% endif %}{% endif %}>{{tosca}}</option>
           {% endfor %}
        </select>
      </div>
-     <button type="submit" class="btn btn-success">Apply</button>
+     <button type="submit" class="btn btn-success">Configure</button>
   </form>
 
   {% if selectedTemplate is defined %}
@@ -38,12 +38,12 @@
       </div>
       {% endif %}
     
-      {% if inputs|length > 1 %}
+      {% if inputs|length > 0 %}
       <h2>Set input values:</h2>
       {% endif %}
-      <form action="{{ url_for('createdep', template=selectedTemplate) }}" method="post">
+      <form id="depSubmit" action="{{ url_for('createdep', template=selectedTemplate) }}" method="post">
         <input type="hidden" id="noinputId" name="noinput" value="">
-        {% if inputs|length > 1 %}
+        {% if inputs|length > 0 %}
         {% for key, value in inputs.items() %}
         <div class="form-group">
           <label for="{{key}}">{{key}}</label>
@@ -52,15 +52,70 @@
         </div>
         {% endfor %}
         {% endif %}
-        <button type="submit" class="btn btn-success">Submit</button>
+        <div class="form-group">
+          <p><h2>Configure scheduling:</h2></p>
+          <label class="radio-inline">
+            <input id="autosched" type="radio" name="extra_opts.schedtype" value="auto" checked>Auto
+          </label>
+	  <label class="radio-inline">
+            <input id="mansched" type="radio" name="extra_opts.schedtype" value="man">Manual
+          </label>
+	</div>
+	<div id="autoschedConf" class="form-group">
+	   <label for="keepLastAttempt">Do not delete the deployment in case of failure
+		  <input type="checkbox" id="keepLastAttempt" name="extra_opts.keepLastAttempt" value="">
+	   </label>
+	</div>	
+	<div id="manschedConf" class="form-group">
+	  <label for="keepLastAttempt">Do not delete the deployment in case of failure
+                  <input type="checkbox" id="keepLastAttempt" name="extra_opts.keepLastAttempt" value="">
+	  </label><p><p>
+          <label>Select a provider:</label>
+          <select class="form-control" id="selectSLA" name="extra_opts.selectedSLA">
+          {% for sla in slas %}
+            <option name="selectedSLA" value={{sla.id}}>{{sla.sitename}}: {{sla.service_type}}</option>
+          {% endfor %}
+          </select>
+        </div>	
+        <button type="submit" class="btn btn-success submitBtn">Submit</button>
       </form>
   {% endif %}
 </div>
 
+<style>
+#manschedConf {
+  display: none;
+}
+</style>
 <script>
 $(document).ready(function() {
     $('.js-example-basic-single').select2();
 });
 </script>
 
+<script>
+$(document).ready(function () {
+    $("#depSubmit").submit(function () {
+        $(".submitBtn").attr("disabled", true);
+        return true;
+    });
+});
+
+$(document).ready(function () {
+  $("input[name='extra_opts.schedtype']").click(function() {
+    if ($("#mansched").is(":checked")){
+       $('#manschedConf').show();
+       $('#autoschedConf').hide();
+    }
+    else {
+	$('#manschedConf').hide();
+	$('#autoschedConf').show();
+    }
+  });
+});
+
+//$('#checkboxSLA').change(function() {
+//    $('#selectSLA').attr('disabled',!this.checked)
+//});
+</script>
 {% endblock %}

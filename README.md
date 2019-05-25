@@ -29,7 +29,9 @@ Create the `config.json` file (see the [example](app/config-sample.json)):
     "IAM_CLIENT_SECRET": "*****",
     "IAM_BASE_URL": "https://iam-test.indigo-datacloud.eu",
     "ORCHESTRATOR_URL": "https://indigo-paas.cloud.ba.infn.it/orchestrator",
-    "TOSCA_TEMPLATES_DIR": "/opt/tosca-templates"
+    "TOSCA_TEMPLATES_DIR": "/opt/tosca-templates",
+    "SLAM_URL": "https://indigo-slam.cloud.ba.infn.it:8443",
+    "CMDB_URL": "https://indigo-paas.cloud.ba.infn.it/cmdb"
 }
 ````
 Clone the tosca-templates repository to get a set of tosca templates that the dashboard will load, e.g.:
@@ -124,6 +126,19 @@ cd orchestrator-dashboard
 docker build -f docker/Dockerfile -t orchestrator-dashboard .
 ```
 
+## How to setup a development environment
 
+```
+git clone https://github.com/maricaantonacci/orchestrator-dashboard.git
+cd orchestrator-dashboard
+python3 -m venv venv
+source venv/source/activate
+pip install -r requirements.txt
+```
+
+Start the dashboard app:
+```
+FLASK_app=orchdashboard flask run --host=0.0.0.0 --cert cert.pem --key privkey.pem --port 443
+```
 
 
