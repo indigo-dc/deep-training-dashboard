@@ -140,5 +140,23 @@ Start the dashboard app:
 ```
 FLASK_app=orchdashboard flask run --host=0.0.0.0 --cert cert.pem --key privkey.pem --port 443
 ```
+## Troubleshooting
 
+### SSL Cert Verification
+If you see problems with the SLAM interaction, you would need to specify the certificate to be used to verify the SSL connection.
+You can pass the path to a CA_BUNDLE file or directory with certificates of trusted CAs setting the parameter SLAM_CERT in the config.json file:
+
+```
+{
+  ...
+  "SLAM_URL": "https://indigo-slam.cloud.ba.infn.it:8443",
+  "SLAM_CERT": "/path/to/certfile"
+}
+```
+
+If you are running the docker container, you need to ensure that the cert file is available inside the container in the path set in the SLAM_CERT parameter, i.e. you would use a bind mount (`-v $PWD/certfile:/path/to/cerfile`)
+
+#### References:
+
+- https://2.python-requests.org/en/master/user/advanced/#ssl-cert-verification
 
