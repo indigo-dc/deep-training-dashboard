@@ -132,7 +132,7 @@ docker build -f docker/Dockerfile -t orchestrator-dashboard .
 git clone https://github.com/maricaantonacci/orchestrator-dashboard.git
 cd orchestrator-dashboard
 python3 -m venv venv
-source venv/source/activate
+source venv/bin/activate
 pip install -r requirements.txt
 ```
 
