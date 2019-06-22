@@ -1,7 +1,7 @@
 <!-- start tabs creation section -->
 <ul class="nav nav-tabs">
-  <li class="active"><a data-toggle="tab" href=#InputValues>Input Values</a></li>
-  <li><a data-toggle="tab" href=#Advanced>Advanced</a></li>
+  <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#InputValues">Input Values</a></li>
+  <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#Advanced">Advanced</a></li>
 </ul>
 <!-- end tab creation section -->
 
@@ -9,7 +9,7 @@
   <div class="tab-content">
 
     <!-- inputs -->
-    <div id=InputValues class="tab-pane fade in active">
+    <div class="tab-pane fade show active" id=InputValues>
       {% if inputs|length > 0 %}
         {% for key, value in inputs.items() %}
           <div class="form-group">
@@ -25,9 +25,10 @@
     <!-- end inputs -->
 
     <!-- scheduling -->
-    <div id="Advanced" class="tab-pane fade">
+    <div class="tab-pane fade" id="Advanced">
       {% include 'scheduling.html' %}
     </div>
 
+  </div>
   <button type="submit" class="btn btn-success submitBtn">Submit</button>
 </form>
