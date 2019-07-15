@@ -28,6 +28,32 @@ for path, subdirs, files in os.walk(toscaDir):
             if name[0] != '.': 
                toscaTemplates.append( os.path.relpath(os.path.join(path, name), toscaDir ))
 
+import_metadata = False
+tosca_metadata_dir = app.config.get('TOSCA_METADATA_DIR')
+if tosca_metadata_dir:
+    import_metadata = True
+    metadata_dict = {}
+    tosca_metadata_path = tosca_metadata_dir + "/"
+
+    for tosca in toscaTemplates:
+        # Assign default metadata vaules
+        metadata_dict[tosca] = dict(name=tosca,
+                                    icon=app.root_path+"/static/defaults/default_app.svg")
+        # Search for metadata file
+        for mpath, msubs, mnames in os.walk(tosca_metadata_path):
+            for mname in mnames:
+                if fnmatch(mname, '*.metadata.yml') or fnmatch(mname, '*.metadata.yaml'):
+                    # skip hidden files
+                    if mname[0] != '.':
+                        tosca_metadata_file = os.path.join(mpath, mname)
+                        with io.open(tosca_metadata_file) as metadata_file:
+                            metadata = yaml.load(metadata_file)
+                            template_metadata = metadata["template_metadata"]
+                            if(tosca == template_metadata["name"]):
+                                metadata_dict[tosca] = template_metadata
+
+    toscaTemplates = metadata_dict
+
 tosca_pars_dir = app.config.get('TOSCA_PARAMETERS_DIR')
 
 orchestratorUrl = app.config.get('ORCHESTRATOR_URL')
@@ -103,10 +129,9 @@ def getslas():
   return render_template('sla.html', slas=slas)
 
 
-@app.route('/dashboard/<page>')
-@app.route('/<page>')
+@app.route('/dashboard/')
 @app.route('/')
-def home(page=0):
+def home():
 
   if not iam_blueprint.session.authorized:
      return redirect(url_for('login'))
@@ -122,7 +147,7 @@ def home(page=0):
 
         headers = {'Authorization': 'bearer %s' % (access_token)}
 
-        url = orchestratorUrl +  "/deployments?createdBy=me&page=" + str(page)
+        url = orchestratorUrl +  "/deployments?createdBy=me&page=0&size=9999"
         response = requests.get(url, headers=headers)
 
         deployments = {}
@@ -130,11 +155,10 @@ def home(page=0):
             flash("Error retrieving deployment list: \n" + response.text, 'warning')
         else:
             deployments = response.json()["content"]
-            pages=response.json()['page']['totalPages']
-            app.logger.debug(pages)
-        return render_template('deployments.html', deployments=deployments, tot_pages=pages, current_page=page)
-  except Exception:
-      app.logger.info("error")
+            app.logger.debug("Deployments: " + str(deployments))
+        return render_template('deployments.html', deployments=deployments)
+  except Exception as e:
+      app.logger.info("Error: " + str(e))
       return redirect(url_for('logout'))
 
 
@@ -181,7 +205,7 @@ def depcreate():
      access_token = iam_blueprint.session.token['access_token']
 
      if request.method == 'GET':
-        return render_template('createdep.html', templates=toscaTemplates, inputs={})
+        return render_template('createdep.html', templates=toscaTemplates, inputs={}, import_metadata=import_metadata)
      else:
         selected_tosca = request.form.get('tosca_template')
         
@@ -199,27 +223,35 @@ def depcreate():
            enable_config_form = False
            tabs={}
            if tosca_pars_dir:
-             tosca_pars_path = tosca_pars_dir + "/" # this has to be reassigned here because is local.
-             for path, subdirs, files in os.walk(tosca_pars_path):
-               for name in files:
-                 if fnmatch(name, os.path.splitext(selected_tosca)[0]+".parameters.yml") or fnmatch(name, os.path.splitext(selected_tosca)[0]+".parameters.yaml"):
-                   # skip hidden files
-                   if name[0] != '.':
-                     tosca_pars_file = os.path.join(path, name)
-                     with io.open(tosca_pars_file) as pars_file:
-                       enable_config_form = True
-                       pars_data = yaml.load(pars_file)
-                       inputs = pars_data["inputs"]
-                       if( "tabs" in pars_data ): tabs = pars_data["tabs"]
- 
+               tosca_pars_path = tosca_pars_dir + "/"  # this has to be reassigned here because is local.
+               for fpath, subs, fnames in os.walk(tosca_pars_path):
+                   for fname in fnames:
+                       if fnmatch(fname, os.path.splitext(selected_tosca)[0] + '.parameters.yml') or \
+                               fnmatch(fname, os.path.splitext(selected_tosca)[0] + '.parameters.yaml'):
+                           # skip hidden files
+                           if fname[0] != '.':
+                               tosca_pars_file = os.path.join(fpath, fname)
+                               with io.open(tosca_pars_file) as pars_file:
+                                   enable_config_form = True
+                                   pars_data = yaml.load(pars_file)
+                                   inputs = pars_data["inputs"]
+                                   if "tabs" in pars_data:
+                                       tabs = pars_data["tabs"]
            description = "N/A"
            if 'description' in template:
               description = template['description']
 
-           slas = get_slas(access_token)
+           try:
+               slas = get_slas(access_token)
+
+           except Exception as e:
+               flash("Error retrieving SLAs list: \n" + str(e), 'warning')
+               return redirect(url_for('home'))
+
            return render_template('createdep.html', 
                                   templates=toscaTemplates,
                                   selectedTemplate=selected_tosca,
+                                  import_metadata=import_metadata,
                                   description=description,
                                   inputs=inputs,
                                   slas=slas,
@@ -229,15 +261,10 @@ def depcreate():
 def add_sla_to_template(template, sla_id):
     # Add the placement policy
 
-    nodes=template['topology_template']['node_templates']
-    compute_nodes = []
-#    for key, dict in nodes.items():
-#        node_type=dict["type"]
-#        if node_type == "tosca.nodes.indigo.Compute" or node_type == "tosca.nodes.indigo.Container.Application.Docker.Chronos" :
-#            compute_nodes.append(key)
-#    template['topology_template']['policies']=[{ "deploy_on_specific_site": { "type": "tosca.policies.Placement", "properties": { "sla_id": sla_id }, "targets": compute_nodes  } }]
-    template['topology_template']['policies']=[{ "deploy_on_specific_site": { "type": "tosca.policies.Placement", "properties": { "sla_id": sla_id } } }]
-    app.logger.info(yaml.dump(template,default_flow_style=False))
+    template['topology_template']['policies'] = [
+        {"deploy_on_specific_site": {"type": "tosca.policies.Placement", "properties": {"sla_id": sla_id}}}]
+    app.logger.info(yaml.dump(template, default_flow_style=False))
+
     return template
 #        
 # 
@@ -272,11 +299,9 @@ def createdep():
 
          payload = { "template" : yaml.dump(template,default_flow_style=False), "parameters": inputs }
 
-     #body= json.dumps(payload)
 
      url = orchestratorUrl +  "/deployments/"
      headers = {'Content-Type': 'application/json', 'Authorization': 'bearer %s' % (access_token)}
-     #response = requests.post(url, data=body, headers=headers)
      response = requests.post(url, json=payload, params=params, headers=headers)
 
      if not response.ok:
@@ -295,5 +320,3 @@ def logout():
    iam_blueprint.session.get("/logout")
 #   del iam_blueprint.session.token
    return redirect(url_for('login'))
-
-

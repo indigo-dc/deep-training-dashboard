@@ -1,64 +1,75 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="container">
+<div class="container-fluid">
 
-{% with messages = get_flashed_messages() %}
-{% if messages %}
-{% for message in messages %}
-<div class="alert alert-warning">
-  <strong>Warning!</strong> {{ message }}
-</div>
-<p></p>
-{% endfor %}
-{% endif %}
-{% endwith %}
-
-  <br>
-  <div class="header">
-    <div class="container-fluid">
-      <!-- Body -->
-      <div class="header-body">
-        <div class="row">
-          <div class="col-md-6">
-            <!-- Title -->
-            <h3 class="header-title">Service Level Agreements:</h3>
-          </div>
-          <div class="col-md-6 text-right">
-            <!-- Button -->
-            <button class="btn btn-small btn-outline-secondary" onclick="location.href='{{ url_for("getslas") }}'"><span class="fas fa-sync"></span> Refresh</button>
-          </div>
-        </div> <!-- / .row -->
-      </div> <!-- / .header-body -->
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-warning">
+        <strong>Warning!</strong> {{ message }}
     </div>
-  </div>
-  <br>
+    <p></p>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
 
-<div class="table-responsive">
-  <table class="table table-striped">
-    <thead>
-      <tr>
-	<!-- <th>id</th>-->
-        <th>Site</th>
-	<th>Service Type</th>
-        <th>Start date</th>
-	<th>End date</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for sla in slas %}
-      <tr>
-	 <!-- <td>{{sla.id}}</td>-->
-	 <td>{{sla.sitename}}</td>
-	 <td>{{sla.service_type}}</td>
-	 <td>{{sla.start_date}}</td>
-	 <td>{{sla.end_date}}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+    <br>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+          <div class="row">
+            <div class="col-md-6">
+              <!-- Title -->
+              <h4 class="font-weight-bold text-primary">Service Level Agreements</h4>
+            </div>
+            <div class="col-md-6 text-right">
+              <!-- Button -->
+              <button class="btn btn-small btn-outline-secondary" onclick="location.href='{{ url_for("getslas") }}'"><span class="fas fa-sync"></span> Refresh</button>
+            </div>
+          </div> <!-- / .row -->
+        </div>
+        <div class="card-body">
+
+    <div class="table-responsive">
+        <table id="tableSLAs" class="table table-bordered table-striped table-hover" width="100%" cellspacing="0">
+            <thead>
+                <tr>
+	            <!-- <th>id</th>-->
+                    <th>Site</th>
+                    <th>Service Type</th>
+                    <th>Start date</th>
+                    <th>End date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sla in slas %}
+                <tr>
+	            <!-- <td>{{sla.id}}</td>-->
+	            <td>{{sla.sitename}}</td>
+	            <td>{{sla.service_type}}</td>
+	            <td>{{sla.start_date}}</td>
+	            <td>{{sla.end_date}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    </div>
+    </div>
 </div>
 
+<script>
+    $('#tableSLAs').dataTable( {
+        "responsive": true,
+        "order": [],
+        "columnDefs": [ {
+          "targets"  : 'no-sort',
+          "orderable": false,
+        }],
+        "order": [[ 3, "asc" ]]
+    });
+</script>
 
 {% endblock %}
 

@@ -1,57 +1,51 @@
 {% extends "base.html" %}
-
 {% block content %}
-<style>
-.panel {
-  /* Add shadows to create the "card" effect */
-  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
-  transition: 0.3s;
-}
 
-.panel-body {
-  font-family: Tahoma;
-}
+<div class="container-fluid">
 
-</style>
+    <br>
 
-<div class="container">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h4 class="font-weight-bold text-primary">Settings</h4>
+        </div>
+        <div class="card-body">
 
-  <br>
-  <div class="header">
-    <div class="container-fluid">
-      <!-- Body -->
-      <div class="header-body">
-        <div class="row">
-          <div class="col-md-6">
-            <!-- Title -->
-            <h3 class="header-title">Settings:</h3>
-          </div>
-        </div> <!-- / .row -->
-      </div> <!-- / .header-body -->
+    <div class="table-responsive">
+        <table id="tableServices" class="table table-bordered table-striped" width="100%" cellspacing="0">
+            <thead>
+                <tr>
+                    <!-- <th>id</th>-->
+                    <th>Service</th>
+                    <th>Endpoint</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>IAM</td>
+                    <td>{{ iam_url }}</td>
+                </tr>
+                <tr>
+                    <td>Orchestrator</td>
+                    <td>{{ orchestrator_url }}</td>
+                </tr>
+            </tbody>
+        </table>
     </div>
-  </div>
-  <br>
-
-
-  <div class="card">
-    <div class="card-header">
-      <strong>IAM</strong>
     </div>
-    <div class="card-body">
-      {{ iam_url }}
     </div>
-  </div>
+</div>
 
-  <div class="card">
-    <div class="card-header">
-      <strong>Orchestrator</strong>
-    </div>
-    <div class="card-body">
-       {{ orchestrator_url }}
-    </div>
-  </div>
-
-</div> 
-
+<script>
+    $('#tableServices').dataTable( {
+        "responsive": true,
+        "order": [],
+        "columnDefs": [ {
+          "targets"  : 'no-sort',
+          "orderable": false,
+        }],
+        "order": [[ 1, "asc" ]]
+    });
+</script>
 
 {% endblock %}
