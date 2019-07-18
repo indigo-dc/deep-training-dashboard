@@ -91,8 +91,8 @@
                         Do you really want to delete the deployment {{deployment.uuid}}?
                       </div>
                       <div class="modal-footer">
-                        <button id="cancelBtn" type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
-                        <a id="deleteBtn" class="btn btn-danger" role="button" href="{{ url_for("depdel", depid=deployment.uuid) }}">Delete deployment</a>
+                        <a id="cancelBtn" class="btn btn-primary text-white" role="button" data-dismiss="modal">Cancel</a>
+                        <a id="deleteBtn" class="btn btn-danger"  role="button" href="{{ url_for("depdel", depid=deployment.uuid) }}">Delete deployment</a>
                       </div>
                     </div>
                   </div>
@@ -145,6 +145,7 @@
         </div>
     </div>
 </div>
+
 <script>
 $(document).ready(function () {
     $("#deleteBtn").click(function () {
