@@ -34,18 +34,39 @@
     <link rel="icon" type="image/png" sizes="32x32" href="static/images/favicon_io/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="static/images/favicon_io/favicon-16x16.png">
     <link rel="manifest" href="static/images/favicon_io/site.webmanifest">
+    <!-- Dotdotdot -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jQuery.dotdotdot/4.0.9/dotdotdot.js"></script>
+    <!-- Cookie Consent -->
+    <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.3/cookieconsent.min.css" />
+    <script src="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.3/cookieconsent.min.js"></script>
+    <script>
+    window.addEventListener("load", function(){
+        window.cookieconsent.initialise({
+          "palette": {
+            "popup": {
+              "background": "#050101"
+            },
+            "button": {
+              "background": "#337ab7"
+            }
+          },
+          "theme": "classic",
+          "position": "top"
+        })
+    });
+    </script>
 </head>
 <body>
     <nav class="navbar navbar-dark bg-dark navbar-expand-md">
         <div class="container-fluid">
-            <a class="navbar-brand" href="">PaaS Orchestrator Dashboard</a>
+            <a class="navbar-brand" href="{{ url_for("home") }}">PaaS Orchestrator Dashboard</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#myNavbar">
                 <span class="navbar-toggler-icon"></span>
             </button>
 	    <div class="collapse navbar-collapse" id="myNavbar">
                 <ul class="navbar-nav mr-auto">
                     {% if session['username'] %}
-                    <li class="nav-item active"><a class="nav-link" href="{{ url_for("home") }}">Home</a></li>
+                    <li class="nav-item active"><a class="nav-link" href="{{ url_for("showdeployments") }}">Deployments</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url_for("getslas") }}">SLAs</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url_for("show_settings") }}">Settings</a></li>
                     {% if session['userrole'] == 'admin' %}

@@ -3,7 +3,7 @@
 
 
 <div class="container-fluid">
-
+{% set ar = namespace(found=false) %}
 {% with messages = get_flashed_messages() %}
 {% if messages %}
 {% for message in messages %}
@@ -25,8 +25,8 @@
             </div>
             <div class="col-md-6 text-right">
               <!-- Button -->
-              <button type=button class='btn btn-outline-secondary' onclick='location.href="{{ url_for('home') }}"'><span class='fas fa-sync mr-2'></span> Refresh</button>
-              <button type=button class='btn btn-primary' onclick='location.href="{{ url_for('depcreate') }}"'><span class='fas fa-plus mr-2'></span> New deployment</button>
+              <button type=button class='btn btn-outline-secondary' onclick='location.href="{{ url_for('showdeployments') }}"'><span class='fas fa-sync mr-2'></span>Refresh</button>
+              <button type=button class='btn btn-primary' onclick='location.href="{{ url_for('home') }}"'><span class='fas fa-plus mr-2'></span>New deployment</button>
             </div>
           </div> <!-- / .row -->
         </div>
@@ -40,7 +40,6 @@
                   <th>Deployment uuid</th>
                   <th>Status</th>
                   <th>Creation time</th>
-                  <!--th>Updated At</th-->
                   <th>Deployed At</th>
                   <th>Actions</th>
                 </tr>
@@ -49,6 +48,9 @@
               <!--Table body-->
               <tbody>
                 {% for deployment in deployments %}
+                {% if "IN_PROGRESS" in deployment.status %}
+                    {% set ar.found = true %}
+                {% endif %}
                 <tr>
                     <th scope="row"><a href="#details{{deployment.uuid}}" data-toggle="modal" data-target="#details{{deployment.uuid}}">{{deployment.uuid}}</a></th>
                     <td>
@@ -61,7 +63,6 @@
                     {% endif %}
                     {{deployment.status}}</td>
                     <td>{{deployment.creationTime}}</td>
-                    <!--td>{{deployment.updateTime}}</td-->
                     <td>{{deployment.cloudProviderName}}</td>
                     <td>
                       <div class="btn-group">
@@ -91,8 +92,8 @@
                         Do you really want to delete the deployment {{deployment.uuid}}?
                       </div>
                       <div class="modal-footer">
-                        <a id="cancelBtn" class="btn btn-primary text-white" role="button" data-dismiss="modal">Cancel</a>
-                        <a id="deleteBtn" class="btn btn-danger"  role="button" href="{{ url_for("depdel", depid=deployment.uuid) }}">Delete deployment</a>
+                        <a class="btn btn-primary cancelBtn" role="button" data-dismiss="modal">Cancel</a>
+                        <a class="btn btn-danger deleteBtn" role="button" href="{{ url_for("depdel", depid=deployment.uuid) }}">Delete deployment</a>
                       </div>
                     </div>
                   </div>
@@ -102,19 +103,20 @@
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="details_label_{{deployment.uuid}}">Deployment details</h5>
+                                <h5 class="modal-title" id="details_label_{{deployment.uuid}}"><i class="fa fa-info-circle mr-2" aria-hidden="true"></i>Deployment details</h5>
                                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                             </div>
                             <div class="modal-body">
+                                <div class="container">
                                 <!-- Nav tabs -->
-                                    <ul class="nav nav-tabs" role="tablist">
-                                        <li class="nav-item"><a class="nav-link active" id="tab-overview{{deployment.uuid}}" href="#overview{{deployment.uuid}}" data-toggle="tab" role="tab" aria-controls="overview{{deployment.uuid}}" aria-selected="true">Overview</a></li>
-                                        <li class="nav-item"><a class="nav-link" id="tab-outputs{{deployment.uuid}}" href="#outputs{{deployment.uuid}}" data-toggle="tab" role="tab" aria-controls="outputs{{deployment.uuid}}" aria-selected="false">Outputs</a></li>
+                                    <ul class="nav nav-tabs border-0" role="tablist">
+                                        <li class="nav-item"><a class="nav-link active border border-primary border-bottom-0" id="tab-overview{{deployment.uuid}}" href="#overview{{deployment.uuid}}" data-toggle="tab" role="tab" aria-controls="overview{{deployment.uuid}}" aria-selected="true">Overview</a></li>
+                                        <li class="nav-item"><a class="nav-link border border-primary border-bottom-0" id="tab-outputs{{deployment.uuid}}" href="#outputs{{deployment.uuid}}" data-toggle="tab" role="tab" aria-controls="outputs{{deployment.uuid}}" aria-selected="false">Outputs</a></li>
                                     </ul>
                                 <!-- Tab panes -->
                                     <div class="tab-content">
-                                        <div class="tab-pane fade show active" id="overview{{deployment.uuid}}" role="tabpanel" aria-labelledby="tab-overview{{deployment.uuid}}">
-                                            <br>
+                                        <div class="tab-pane pl-3 pt-3 fade show active border border-primary" id="overview{{deployment.uuid}}" role="tabpanel" aria-labelledby="tab-overview{{deployment.uuid}}">
+                                            <small>
                                             <p><b>UUID: </b>{{deployment.uuid}}</p>
                                             <p><b>STATUS: </b>{{deployment.status}}</p>
                                             {% if deployment.statusReason %}
@@ -123,13 +125,16 @@
                                             <p><b>CREATED AT: </b>{{deployment.creationTime}}</p>
                                             <p><b>UPDATED AT: </b>{{deployment.updateTime}}</p>
                                             <p><b>DEPLOYED AT: </b>{{deployment.cloudProviderName}}</p>
-
+                                            </small>
                                         </div>
-                                        <div class="tab-pane fade" id="outputs{{deployment.uuid}}" role="tabpanel" aria-labelledby="tab-outputs{{deployment.uuid}}">
-                                            <p><pre>{{deployment.outputs | tojson_pretty() | safe }}</pre></p>
-                                            <br>
+                                        <div class="tab-pane pl-3 pt-3 fade border border-primary" id="outputs{{deployment.uuid}}" role="tabpanel" aria-labelledby="tab-outputs{{deployment.uuid}}">
+                                            <!--p><small><pre>{{deployment.outputs | tojson_pretty() | safe }}</pre></small></p-->
+                                            {% for k,v in deployment.outputs.items() %}
+                                            <p><small><strong>{{k}}</strong>: {{v}}</small></p>
+                                            {% endfor %}
                                         </div>
                                     </div>
+                                </div>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
@@ -146,11 +151,41 @@
     </div>
 </div>
 
+<style>
+.modal-header {
+  background-color: #3374FF;
+  margin: 2px;
+  color: white;
+  padding:9px 15px;
+
+}
+
+.nav-tabs .nav-link:not(.active) {
+    border-color: transparent !important;
+}
+
+.modal-footer {
+    border-top: 0 none;
+    padding-top: 0;
+    padding-bottom: 0.3rem;
+    padding-right: 0.3rem;
+}
+
+.close {
+    color: #fff;
+    //opacity: 1;
+}
+</style>
+
+{% if ar.found %}
+<script>setTimeout(function(){location.reload();},30000);</script>
+{% endif %}
+
 <script>
 $(document).ready(function () {
-    $("#deleteBtn").click(function () {
+    $(".deleteBtn").click(function () {
         // add spinner to button
-        $("#cancelBtn").addClass("disabled", true);
+        $(this).parent().find(".cancelBtn").addClass("disabled", true);
         $(this).addClass("disabled", true);
         $(this).html( `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Deleting...` );
     });
@@ -167,7 +202,7 @@ $(document).ready(function () {
             "targets"  : 'no-sort',
             "orderable": false,
          }],
-        "order": [[ 3, "desc" ]]
+        "order": [[ 2, "desc" ]]
     });
 </script>
 
