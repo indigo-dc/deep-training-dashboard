@@ -1,5 +1,7 @@
 <!-- start tabs creation section -->
 <ul class="nav nav-tabs">
+{% set tabs=template['tabs'] %}
+{% set inputs=template['inputs'] %}
 {% if tabs|length > 0 %}
   {% for tab in tabs %}
     {% if loop.first %}

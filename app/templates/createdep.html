@@ -16,68 +16,31 @@
     {% endwith %}
 
     <br>
-      <div class="card shadow mb-4">
+    <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h4 class="font-weight-bold text-primary">New deployment</h4>
+            <h4 class="font-weight-bold text-primary">
+            Template: {{selectedTemplate}}
+            </h4>
         </div>
 
         <div class="card-body">
-          <form name="tosca_template" action="{{ url_for('depcreate') }}" method='POST'>
-             <div class="form-group">
-               <label for="tosca_template">Select Deployment Type:</label>
-                {% if import_metadata == true %}
-                <select class="js-example-basic-single js-states form-control" name="tosca_template" id ="tosca_template">
-                    {% for key, value in templates.items() %}
-                    <option name="tosca_template" value="{{key}}" {% if selectedTemplate is defined %}{% if key == selectedTemplate %}selected{% endif %}{% endif %}>
-                    {% if value.display_name is defined %}{{value.display_name}}{% else %}{{key}}{% endif %}
-                    </option>
-                    {% endfor %}
-                </select>
-                {% else %}
-                <select class="js-example-basic-single js-states form-control" name="tosca_template" id ="tosca_template">
-                    {% for tosca in templates %}
-                    <option name="tosca_template" {%if selectedTemplate is defined %}{% if tosca == selectedTemplate %}selected{% endif %}{% endif %}>{{tosca}}</option>
-                    {% endfor %}
-                </select>
-                {% endif %}
-             </div>
-             <button type="submit" id="loadToscaBtn" class="btn btn-success">Configure</button>
-             {% if not selectedTemplate is defined %}
-             <button type=button class="btn btn-small btn-outline-secondary" onclick="location.href='{{ url_for('home') }}'">
-                 <span class="fas fa-arrow-left mr-2"></span> Back</button>
-             {% endif %}
-          </form>
-
-          {% if selectedTemplate is defined %}
-          <br>
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h4 class="font-weight-bold text-primary">
-                    Template: {% if import_metadata == true and templates[selectedTemplate]["display_name"] is defined %}{{templates[selectedTemplate]["display_name"]}}{% else %}{{selectedTemplate}}{% endif %}
-                    </h4>
-                </div>
-
-                <div class="card-body">
-                    {% if description is defined %}
-                    <div class="alert alert-info">
-                        <strong>Description:</strong> {{description}}
-                    </div>
-                    {% endif %}
-                    <form id="depSubmit" action="{{ url_for('createdep', template=selectedTemplate) }}" method="post">
-                    {% if enable_config_form %}
-                        {% include 'config_form.html' %}
-                    {% else %}
-                        {% include 'default_form.html' %}
-                    {% endif %}
-                    <button type="submit" class="btn btn-success submitBtn">Submit</button>
-                    <button type=button class="btn btn-small btn-primary" onclick="location.href='{{ url_for('depcreate') }}'">
-                        <span class="fas fa-ban mr-2"></span>Cancel</button>
-                    </form>
-                </div>
+            <div class="alert alert-info">
+                <strong>Description:</strong> {{template['description']}}
             </div>
+
+            <form id="depSubmit" action="{{ url_for('createdep', template=selectedTemplate) }}" method="post">
+            {% if enable_config_form %}
+                {% include 'config_form.html' %}
+            {% else %}
+                {% include 'default_form.html' %}
             {% endif %}
+            <button type="submit" class="btn btn-success submitBtn">Submit</button>
+            <button id="cancelBtn" type=button class="btn btn-small btn-primary" onclick="location.href='{{ url_for('home') }}'">
+                <span class="fas fa-ban mr-2"></span>Cancel</button>
+            </form>
         </div>
-      </div>
+    </div>
+
 </div>
 
 <style>
@@ -107,6 +70,9 @@ $(document).ready(function () {
         $(".submitBtn").attr("disabled", true);
         // add spinner to button
         $(".submitBtn").html( `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...` );
+        //disable cancel too
+        $("#cancelBtn").attr("disabled", true);
+        $("#cancelBtn").attr("onclick", "#");
         return true;
     });
 });
