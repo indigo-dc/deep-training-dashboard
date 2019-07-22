@@ -238,89 +238,31 @@ def depdel(depid=None):
         flash("Error deleting deployment: " + response.text);
   
     return redirect(url_for('showdeployments'))
-#
-@app.route('/create', methods=['POST'])
-def depcreate():
-
-    if not iam_blueprint.session.authorized:
-        return redirect(url_for('login'))
-
-    access_token = iam_blueprint.session.token['access_token']
-
-    selected_tosca = request.form.get('tosca_template')
-
-    with io.open( toscaDir + selected_tosca) as stream:
-       template = yaml.load(stream)
-       if 'topology_template' not in template:
-         flash("Error reading template \"" + selected_tosca + "\": syntax is not correct. Please select another template.");
-         return redirect(url_for('depcreate'))
-
-       inputs={}
-       if 'inputs' in template['topology_template']:
-          inputs = template['topology_template']['inputs']
-
-       ## add parameters code here
-       enable_config_form = False
-       tabs={}
-       if tosca_pars_dir:
-           tosca_pars_path = tosca_pars_dir + "/"  # this has to be reassigned here because is local.
-           for fpath, subs, fnames in os.walk(tosca_pars_path):
-               for fname in fnames:
-                   if fnmatch(fname, os.path.splitext(selected_tosca)[0] + '.parameters.yml') or \
-                           fnmatch(fname, os.path.splitext(selected_tosca)[0] + '.parameters.yaml'):
-                       # skip hidden files
-                       if fname[0] != '.':
-                           tosca_pars_file = os.path.join(fpath, fname)
-                           with io.open(tosca_pars_file) as pars_file:
-                               enable_config_form = True
-                               pars_data = yaml.load(pars_file)
-                               inputs = pars_data["inputs"]
-                               if "tabs" in pars_data:
-                                   tabs = pars_data["tabs"]
-       description = "N/A"
-       if 'description' in template:
-          description = template['description']
-
-       try:
-           slas = get_slas(access_token)
-
-       except Exception as e:
-           flash("Error retrieving SLAs list: \n" + str(e), 'warning')
-           return redirect(url_for('home'))
-
-       return render_template('createdep.html',
-                              templates=toscaTemplates,
-                              selectedTemplate=selected_tosca,
-                              description=description,
-                              inputs=inputs,
-                              slas=slas,
-                              enable_config_form=enable_config_form,
-                              tabs=tabs)
 
 
-@app.route('/configure', methods=['GET', 'POST'])
+@app.route('/configure')
 def configure():
     if not iam_blueprint.session.authorized:
         return redirect(url_for('login'))
 
     access_token = iam_blueprint.session.token['access_token']
 
-    if request.method == 'GET':
 
-        selected_tosca = request.args['selected_tosca']
 
-        try:
-            slas = get_slas(access_token)
+    selected_tosca = request.args['selected_tosca']
 
-        except Exception as e:
-            flash("Error retrieving SLAs list: \n" + str(e), 'warning')
-            return redirect(url_for('home'))
+    try:
+        slas = get_slas(access_token)
 
-        return render_template('createdep.html',
-                               template=toscaInfo[selected_tosca],
-                               selectedTemplate=selected_tosca,
-                               slas=slas,
-                               enable_config_form=enable_config_form)
+    except Exception as e:
+        flash("Error retrieving SLAs list: \n" + str(e), 'warning')
+        return redirect(url_for('home'))
+
+    return render_template('createdep.html',
+                           template=toscaInfo[selected_tosca],
+                           selectedTemplate=selected_tosca,
+                           slas=slas,
+                           enable_config_form=enable_config_form)
 
 
 def add_sla_to_template(template, sla_id):
