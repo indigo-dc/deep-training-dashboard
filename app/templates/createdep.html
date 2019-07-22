@@ -1,85 +1,83 @@
 {% extends "base.html" %}
 
 {% block content %}
+
 <div class="container">
 
-{% with messages = get_flashed_messages() %}
-{% if messages %}
-{% for message in messages %}
-<div class="alert alert-warning">
-  <strong>Warning!</strong> {{ message }}
-</div>
-<p></p>
-{% endfor %}
-{% endif %}
-{% endwith %}
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-warning">
+        <strong>Warning!</strong> {{ message }}
+    </div>
+    <p></p>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
 
-  <br>
-  <form name="tosca_template" action="{{ url_for('depcreate') }}" method='POST'>
-     <div class="form-group">
-       <label for="sel1">Select TOSCA Template:</label>
-       <select class="js-example-basic-single" name="tosca_template">
-          <!-- <option value="" selected disabled>-->
-          <!-- <option hidden selected disabled >Select a template...</option> -->
-          {% for tosca in templates %}
-          <option name="tosca_template" {%if selectedTemplate is defined %}{% if tosca == selectedTemplate %}selected{% endif %}{% endif %}>{{tosca}}</option>
-          {% endfor %}
-       </select>
-     </div>
-     <button type="submit" class="btn btn-success">Configure</button>
-  </form>
-
-  {% if selectedTemplate is defined %}
-  <h1> Template: {{selectedTemplate}} </h1>
-
-      {% if description is defined %}
-      <div class="alert alert-info">
-        <strong>Description:</strong> {{description}}
-      </div>
-      {% endif %}
-    
-      {% if inputs|length > 0 %}
-      <h2>Set input values:</h2>
-      {% endif %}
-      <form id="depSubmit" action="{{ url_for('createdep', template=selectedTemplate) }}" method="post">
-        <input type="hidden" id="noinputId" name="noinput" value="">
-        {% if inputs|length > 0 %}
-        {% for key, value in inputs.items() %}
-        <div class="form-group">
-          <label for="{{key}}">{{key}}</label>
-          <input {% if 'password' in key %}type="password"{% else %}type="text"{% endif %} class="form-control" id="{{key}}" name="{{key}}" value="{{value.default}}" aria-describedby="help{{key}}" />
-          <span id="help{{key}}" class="help-block">{{value.description}}</span>
+    <br>
+      <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h4 class="font-weight-bold text-primary">New deployment</h4>
         </div>
-        {% endfor %}
-        {% endif %}
-        <div class="form-group">
-          <p><h2>Configure scheduling:</h2></p>
-          <label class="radio-inline">
-            <input id="autosched" type="radio" name="extra_opts.schedtype" value="auto" checked>Auto
-          </label>
-	  <label class="radio-inline">
-            <input id="mansched" type="radio" name="extra_opts.schedtype" value="man">Manual
-          </label>
-	</div>
-	<div id="autoschedConf" class="form-group">
-	   <label for="keepLastAttempt">Do not delete the deployment in case of failure
-		  <input type="checkbox" id="keepLastAttempt" name="extra_opts.keepLastAttempt" value="">
-	   </label>
-	</div>	
-	<div id="manschedConf" class="form-group">
-	  <label for="keepLastAttempt">Do not delete the deployment in case of failure
-                  <input type="checkbox" id="keepLastAttempt" name="extra_opts.keepLastAttempt" value="">
-	  </label><p><p>
-          <label>Select a provider:</label>
-          <select class="form-control" id="selectSLA" name="extra_opts.selectedSLA">
-          {% for sla in slas %}
-            <option name="selectedSLA" value={{sla.id}}>{{sla.sitename}}: {{sla.service_type}}</option>
-          {% endfor %}
-          </select>
-        </div>	
-        <button type="submit" class="btn btn-success submitBtn">Submit</button>
-      </form>
-  {% endif %}
+
+        <div class="card-body">
+          <form name="tosca_template" action="{{ url_for('depcreate') }}" method='POST'>
+             <div class="form-group">
+               <label for="tosca_template">Select Deployment Type:</label>
+                {% if import_metadata == true %}
+                <select class="js-example-basic-single js-states form-control" name="tosca_template" id ="tosca_template">
+                    {% for key, value in templates.items() %}
+                    <option name="tosca_template" value="{{key}}" {% if selectedTemplate is defined %}{% if key == selectedTemplate %}selected{% endif %}{% endif %}>
+                    {% if value.display_name is defined %}{{value.display_name}}{% else %}{{key}}{% endif %}
+                    </option>
+                    {% endfor %}
+                </select>
+                {% else %}
+                <select class="js-example-basic-single js-states form-control" name="tosca_template" id ="tosca_template">
+                    {% for tosca in templates %}
+                    <option name="tosca_template" {%if selectedTemplate is defined %}{% if tosca == selectedTemplate %}selected{% endif %}{% endif %}>{{tosca}}</option>
+                    {% endfor %}
+                </select>
+                {% endif %}
+             </div>
+             <button type="submit" id="loadToscaBtn" class="btn btn-success">Configure</button>
+             {% if not selectedTemplate is defined %}
+             <button type=button class="btn btn-small btn-outline-secondary" onclick="location.href='{{ url_for('home') }}'">
+                 <span class="fas fa-arrow-left mr-2"></span> Back</button>
+             {% endif %}
+          </form>
+
+          {% if selectedTemplate is defined %}
+          <br>
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h4 class="font-weight-bold text-primary">
+                    Template: {% if import_metadata == true and templates[selectedTemplate]["display_name"] is defined %}{{templates[selectedTemplate]["display_name"]}}{% else %}{{selectedTemplate}}{% endif %}
+                    </h4>
+                </div>
+
+                <div class="card-body">
+                    {% if description is defined %}
+                    <div class="alert alert-info">
+                        <strong>Description:</strong> {{description}}
+                    </div>
+                    {% endif %}
+                    <form id="depSubmit" action="{{ url_for('createdep', template=selectedTemplate) }}" method="post">
+                    {% if enable_config_form %}
+                        {% include 'config_form.html' %}
+                    {% else %}
+                        {% include 'default_form.html' %}
+                    {% endif %}
+                    <button type="submit" class="btn btn-success submitBtn">Submit</button>
+                    <button id="cancelBtn" type=button class="btn btn-small btn-primary" onclick="location.href='{{ url_for('depcreate') }}'">
+                        <span class="fas fa-ban mr-2"></span>Cancel</button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+      </div>
 </div>
 
 <style>
@@ -87,33 +85,44 @@
   display: none;
 }
 </style>
+
 <script>
 $(document).ready(function() {
-    $('.js-example-basic-single').select2();
+    $('.js-example-basic-single').select2({
+      width: '100%' // https://github.com/select2/select2/issues/4220
+    });
 });
 </script>
 
 <script>
 $(document).ready(function () {
+    $("#loadToscaBtn").click(function () {
+        // add spinner to button
+        $(this).html( `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...` );
+    });
+});
+$(document).ready(function () {
     $("#depSubmit").submit(function () {
+        //disable button on click
         $(".submitBtn").attr("disabled", true);
+        // add spinner to button
+        $(".submitBtn").html( `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...` );
+	//disable cancel too
+	$("#cancelBtn").attr("disabled", true);    
+	$("#cancelBtn").attr("onclick", "#");    
         return true;
     });
 });
-
 $(document).ready(function () {
   $("input[name='extra_opts.schedtype']").click(function() {
     if ($("#mansched").is(":checked")){
        $('#manschedConf').show();
-       $('#autoschedConf').hide();
     }
     else {
 	$('#manschedConf').hide();
-	$('#autoschedConf').show();
     }
   });
 });
-
 //$('#checkboxSLA').change(function() {
 //    $('#selectSLA').attr('disabled',!this.checked)
 //});
