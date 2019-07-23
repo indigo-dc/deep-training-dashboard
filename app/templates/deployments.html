@@ -59,7 +59,7 @@
                     {% elif "FAIL" in deployment.status %}
                     <span class="badge badge-danger"/>
                     {% else %}
-                    <span class="badge badge-warning"/>
+                    <span class="badge badge-warning text-white"><span class="spinner-grow spinner-grow-sm"></span>
                     {% endif %}
                     {{deployment.status}}</td>
                     <td>{{deployment.creationTime}}</td>
