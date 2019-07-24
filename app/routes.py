@@ -261,8 +261,7 @@ def configure():
     return render_template('createdep.html',
                            template=toscaInfo[selected_tosca],
                            selectedTemplate=selected_tosca,
-                           slas=slas,
-                           enable_config_form=toscaInfo[selected_tosca]['enable_config_form'])
+                           slas=slas)
 
 
 def add_sla_to_template(template, sla_id):
