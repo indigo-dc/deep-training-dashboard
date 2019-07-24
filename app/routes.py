@@ -42,6 +42,7 @@ for tosca in toscaTemplates:
                             "metadata": {
                                 "icon": "https://cdn4.iconfinder.com/data/icons/mosaicon-04/512/websettings-512.png"
                             },
+                            "enable_config_form": False,
                             "inputs": {},
                             "tabs": {}
                           }
@@ -65,7 +66,6 @@ for tosca in toscaTemplates:
                toscaInfo[tosca]['inputs'] = template['topology_template']['inputs']
 
             ## add parameters code here
-            enable_config_form = False
             tabs = {}
             if tosca_pars_dir:
                 tosca_pars_path = tosca_pars_dir + "/"  # this has to be reassigned here because is local.
@@ -77,7 +77,7 @@ for tosca in toscaTemplates:
                             if fname[0] != '.':
                                 tosca_pars_file = os.path.join(fpath, fname)
                                 with io.open(tosca_pars_file) as pars_file:
-                                    enable_config_form = True
+                                    toscaInfo[tosca]['enable_config_form'] = True
                                     pars_data = yaml.load(pars_file)
                                     toscaInfo[tosca]['inputs'] = pars_data["inputs"]
                                     if "tabs" in pars_data:
@@ -262,7 +262,7 @@ def configure():
                            template=toscaInfo[selected_tosca],
                            selectedTemplate=selected_tosca,
                            slas=slas,
-                           enable_config_form=enable_config_form)
+                           enable_config_form=toscaInfo[selected_tosca]['enable_config_form'])
 
 
 def add_sla_to_template(template, sla_id):
