@@ -29,7 +29,7 @@
             </div>
 
             <form id="depSubmit" action="{{ url_for('createdep', template=selectedTemplate) }}" method="post">
-            {% if enable_config_form %}
+            {% if template['enable_config_form'] is defined and template['enable_config_form'] is sameas true %}
                 {% include 'config_form.html' %}
             {% else %}
                 {% include 'default_form.html' %}
