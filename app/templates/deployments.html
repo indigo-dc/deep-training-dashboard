@@ -4,17 +4,7 @@
 
 <div class="container-fluid">
 {% set ar = namespace(found=false) %}
-{% with messages = get_flashed_messages() %}
-{% if messages %}
-{% for message in messages %}
-<div class="alert alert-warning">
-  <strong>Warning!</strong> {{ message }}
-</div>
-<p></p>
-{% endfor %}
-{% endif %}
-{% endwith %}
-
+{% include 'flashed_messages.html' %}
   <br>
     <div class="card shadow mb-4">
         <div class="card-header py-3">
