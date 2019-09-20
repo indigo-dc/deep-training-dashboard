@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-2" id="cardsContainer" xmlns="http://www.w3.org/1999/html">
+    <div class="input-group mb-4">
+      <div class="input-group-prepend">
+          <div class="input-group-text"><i class="fa fa-search"></i></div>
+      </div>
+      <input id="cardFilter" class="form-control py-2 border" type="text" onkeyup="cardFilter()" placeholder="Search...">
+    </div>
+
+ {% for tosca_filename, tosca in templates.items() %}
+    {% if loop.index % 3 == 1 %}
+    <div class="card-deck">
+    {% endif %}
+
+        <div class="card mb-4" style="max-width: 20rem; max-height: 25rem;">
+            <div class="card-body">
+                <h5 class="card-title text-center"><strong>{{tosca_filename}}</strong></h5>
+            </div>
+            <div class="wrapper">
+                <img class="card-img-bottom img-fluid" src="{{tosca['metadata']['icon']}}" alt="Card image cap">
+            </div>
+            <div class="card-img-overlay text-center">
+                <h5><strong>{{tosca_filename}}</strong></h5>
+                <p id="toscaDescription" class="card-text tosca-descr"><small>{{tosca['description']}}</small></p>
+                <a selector="toscaDescription" class="text-left badge badge-pill badge-info read_more" tabindex="0" data-toggle="popover" title="Full description" data-trigger="focus" data-content="{{tosca['description']}}">Read More</a>
+                <a href="{{ url_for('configure', selected_tosca=tosca_filename) }}" class="badge badge-pill badge-primary">Configure</a>
+            </div>
+        </div>
+    {% if loop.index % 3 == 0 %}
+    </div>
+    {% endif %}
+    {% endfor %}
+    {% if templates|count % 3 != 1 %}
+    </div>
+    {% endif %}
+</div>
+
+<script>
+$(document).ready(function(){
+  $('[data-toggle="popover"]').popover();
+});
+</script>
+
+<script>
+
+//init dotdotdot
+$(".tosca-descr").dotdotdot({
+    ellipsis    : ' [...] ',
+    wrap        : 'word',
+    after       : "a.read_more",
+    watch       : true,
+    height      : 70,
+    callback    : function( isTruncated, orgContent ) {
+
+        if(isTruncated == true){
+            //$(".read_more").css("visibility","visible");
+        }
+        else {
+            $(this).parent().find('.read_more').css("display","none");
+            //$(".read_more").css("display","none");
+        }
+
+    }
+});
+</script>
+
+
+<style>
+
+.wrapper {
+  position: relative;
+  overflow: hidden;
+}
+
+.wrapper:after {
+  content: '';
+  display: block;
+  padding-top: 30%;
+}
+
+.wrapper img {
+
+  object-fit: contain;
+  height: 85%;
+  position: absolute;
+  top: 0;
+}
+
+.card-img-overlay {
+  //background-color: #3374FF;
+  background-color: #0C42B3;
+  color: white;
+  //font-family: 'Abel', sans-serif;
+  //font-family: 'Roboto Condensed', sans-serif;
+}
+
+
+.popover {
+    border: 2px solid #5BC0DE;
+}
+
+
+.popover-header {
+    background-color: #5BC0DE;
+    color: #FFFFFF;
+    margin: 2;
+    //font-size: 22px;
+    text-align:center;
+    //font-family: 'Abel', sans-serif;
+    //font-family: 'Roboto Condensed', sans-serif;
+}
+
+.popover-body {
+    //background-color: white;
+    //color: #FFFFFF;
+    padding: 25px;
+}
+
+</style>
+
+
+<script>
+
+$(document).ready(function() {
+
+  $( ".card-img-overlay").hide();
+
+  $( ".card" ).hover(
+  function() {
+    $(this).addClass('shadow-lg').css('cursor', 'pointer');
+    $(this).find('.card-img-overlay').show();
+  }, function() {
+    $(this).removeClass('shadow-lg');
+    $(this).find('.card-img-overlay').hide();
+  }
+);
+
+});
+
+</script>
+
+<script>
+function cardFilter() {
+    var input, filter, cards, cardContainer, h5, title, i;
+    input = document.getElementById("cardFilter");
+    filter = input.value.toUpperCase();
+    cardContainer = document.getElementById("cardsContainer");
+    cards = cardContainer.getElementsByClassName("card");
+    for (i = 0; i < cards.length; i++) {
+        title = cards[i].querySelector(".card-body .card-title");
+        if (title.innerText.toUpperCase().indexOf(filter) > -1) {
+            cards[i].style.display = "";
+        } else {
+            cards[i].style.display = "none";
+        }
+    }
+}
+</script>
+
+{% endblock %}
