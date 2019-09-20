@@ -60,7 +60,7 @@ docker run -d -p 443:5001 --name='orchestrator-dashboard' \
            -v $PWD/key.pem:/certs/key.pem \
            -v $PWD/config.json:/app/app/config.json \
            -v $PWD/tosca-templates:/opt/tosca-templates \
-           marica/orchestrator-dashboard:latest
+           indigodatacloud/orchestrator-dashboard:latest
 ```
 Access the dashboard at `https://<DASHBOARD_HOST>/`
 
@@ -106,7 +106,7 @@ Run the docker container:
 docker run -d -p 5001:5001 --name='orchestrator-dashboard' \
            -v $PWD/config.json:/app/app/config.json \
            -v $PWD/tosca-templates:/opt/tosca-templates \
-           marica/orchestrator-dashboard:latest
+           indigodatacloud/orchestrator-dashboard:latest
 ```
 :warning: Remember to update the redirect uri in the IAM client to `https://<PROXY_HOST>/login/iam/authorized`
 
@@ -121,7 +121,7 @@ Check the [documentation](http://docs.gunicorn.org/en/stable/design.html#how-man
 ## How to build the docker image
 
 ```
-git clone https://github.com/maricaantonacci/orchestrator-dashboard.git
+git clone https://github.com/indigo-dc/orchestrator-dashboard.git
 cd orchestrator-dashboard
 docker build -f docker/Dockerfile -t orchestrator-dashboard .
 ```
@@ -129,7 +129,7 @@ docker build -f docker/Dockerfile -t orchestrator-dashboard .
 ## How to setup a development environment
 
 ```
-git clone https://github.com/maricaantonacci/orchestrator-dashboard.git
+git clone https://github.com/indigo-dc/orchestrator-dashboard.git
 cd orchestrator-dashboard
 python3 -m venv venv
 source venv/bin/activate
