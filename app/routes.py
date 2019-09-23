@@ -23,6 +23,7 @@ def avatar(email, size):
 toscaDir = app.config.get('TOSCA_TEMPLATES_DIR') + "/"
 tosca_pars_dir = app.config.get('TOSCA_PARAMETERS_DIR')
 orchestratorUrl = app.config.get('ORCHESTRATOR_URL')
+imUrl = app.config.get('IM_URL')
 
 toscaTemplates = []
 for path, subdirs, files in os.walk(toscaDir):
@@ -186,6 +187,24 @@ def deptemplate(depid=None):
     template = response.text
     return render_template('deptemplate.html', template=template)
 #
+
+@app.route('/log/<physicalId>')
+@authorized_with_valid_token
+def deplog(physicalId=None):
+
+    access_token = iam_blueprint.session.token['access_token']
+    headers = {'Authorization': 'id = im; type = InfrastructureManager; token = %s;' % (access_token)}
+
+    url = imUrl + "/infrastructures/" + physicalId + "/contmsg"
+    response = requests.get(url, headers=headers)
+
+    if not response.ok:
+      log="Not found"
+    else:
+      log = response.text
+    return render_template('deplog.html', log=log)
+
+
 @app.route('/delete/<depid>')
 @authorized_with_valid_token
 def depdel(depid=None):
