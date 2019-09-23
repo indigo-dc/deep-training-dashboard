@@ -66,6 +66,7 @@
                         <div class="dropdown-menu">
                           <a class="dropdown-item" data-toggle="modal" data-target="#details{{deployment.uuid}}"><span class="fas fa-bars mr-2 grey-text"></span>Details</a>
                           <a class="dropdown-item" href="{{ url_for('deptemplate', depid=deployment.uuid) }}"><span class="fas fa-search mr-2 grey-text"></span>Show template</a>
+			  <a class="dropdown-item {% if deployment.physicalId is not defined %}disabled{% endif %}" href="{{ url_for('deplog', physicalId=deployment.physicalId) }}"><span class="fas fa-file-alt mr-2 grey-text"></span>Log</a>
                       </div>
                     </td>
                 </tr>
@@ -182,8 +183,6 @@ $(document).ready(function () {
 });
 </script>
 
-
-
 <script>
     $('#tableUserDeployments').dataTable( {
         "responsive": true,
@@ -196,6 +195,11 @@ $(document).ready(function () {
     });
 </script>
 
+<script>
+$(document).ready(function(){
+  $('[data-toggle="tooltip"]').tooltip();
+});
+</script>
 
 {% endblock %}
 
