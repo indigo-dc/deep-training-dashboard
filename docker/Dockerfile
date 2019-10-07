@@ -5,7 +5,7 @@ WORKDIR /app/
 
 ENV PYTHONPATH=/app
 
-RUN pip install gunicorn && pip install -r /app/requirements.txt
+RUN pip3 install gunicorn && pip install -r /app/requirements.txt
 
 EXPOSE 5001
 
