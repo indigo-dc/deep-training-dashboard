@@ -67,11 +67,23 @@
                 <ul class="navbar-nav mr-auto">
                     {% if session['username'] %}
                     <li class="nav-item active"><a class="nav-link" href="{{ url_for("showdeployments") }}">Deployments</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for("getslas") }}">SLAs</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for("show_settings") }}">Settings</a></li>
-                    {% if session['userrole'] == 'admin' %}
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('show_users') }}">Users</a></li>
-                    {% endif %}
+		    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">Advanced</a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="{{ url_for("getslas") }}">SLAs</a>
+                            <a class="dropdown-item" href="{{ url_for("show_settings") }}">Settings</a>
+			</div>
+		    </li>
+		    {% if session["external_links"]|length > 0 %}
+		    <li class="nav-item dropdown">
+			<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">External Links</a>
+                        <div class="dropdown-menu">
+			    {% for link in session["external_links"] %}
+			      <a class="dropdown-item" href="{{ link.url }}">{{link.menu_item_name}}</a>
+			    {% endfor %}
+                        </div>
+                    </li>
+		    {% endif %}
                     {% endif %}
                 </ul>
                 {% if session['username'] %}
