@@ -26,12 +26,20 @@
         </div>
 	<div class="card-footer text-center">
 	<!-- input type="button" id="downloadBtn" value="Download log file"/-->
+	  <button type=button class='btn btn-outline-primary' onclick='location.reload(true)'><span class='fas fa-sync mr-2'></span>Refresh</button>
 	  <button class="btn btn-primary" id="downloadBtn"><i class="fa fa-download"></i> Download</button>
+	  <button class="btn btn-outline-primary" id="topBtn" onclick="topFunction()"><i class="fa fa-angle-double-up"></i> Top</a>
 	</div>  
     </div>
 </div>
 
 <script>
+
+function topFunction() {
+  document.body.scrollTop = 0;
+  document.documentElement.scrollTop = 0;
+}
+
 function download(filename, text) {
   var element = document.createElement('a');
   element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));

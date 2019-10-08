@@ -16,13 +16,20 @@
 
         <div class="card mb-4" style="max-width: 20rem; max-height: 25rem;">
             <div class="card-body">
-                <h5 class="card-title text-center"><strong>{{tosca_filename}}</strong></h5>
+                <h5 class="card-title text-center">
+		  <strong>{% if tosca['metadata']['display_name'] is defined %}{{tosca['metadata']['display_name']}}{% else %}{{tosca_filename}}{% endif %}</strong>
+		</h5>
             </div>
             <div class="wrapper">
                 <img class="card-img-bottom img-fluid" src="{{tosca['metadata']['icon']}}" alt="Card image cap">
+		{% if tosca['metadata']['tag'] is defined %}
+                   <div class="corner-ribbon bottom-right sticky green shadow">{{tosca['metadata']['tag']}}</div>
+                {% endif %}
             </div>
             <div class="card-img-overlay text-center">
-                <h5><strong>{{tosca_filename}}</strong></h5>
+                <h5>
+		  <strong>{% if tosca['metadata']['display_name'] is defined %}{{tosca['metadata']['display_name']}}{% else %}{{tosca_filename}}{% endif %}</strong>
+		</h5>
                 <p id="toscaDescription" class="card-text tosca-descr"><small>{{tosca['description']}}</small></p>
                 <a selector="toscaDescription" class="text-left badge badge-pill badge-info read_more" tabindex="0" data-toggle="popover" title="Full description" data-trigger="focus" data-content="{{tosca['description']}}">Read More</a>
                 <a href="{{ url_for('configure', selected_tosca=tosca_filename) }}" class="badge badge-pill badge-primary">Configure</a>
@@ -117,6 +124,46 @@ $(".tosca-descr").dotdotdot({
     //color: #FFFFFF;
     padding: 25px;
 }
+
+/* The ribbons */
+
+.corner-ribbon{
+  width: 210px;
+  background: #e43;
+  position: absolute;
+  top: 25px;
+  left: -40px;
+  text-align: center;
+  font-size:14px;
+  line-height: 30px;
+  letter-spacing: 1px;
+  color: #f0f0f0;
+  transform: rotate(-45deg);
+  -webkit-transform: rotate(-45deg);
+}
+.corner-ribbon.shadow{
+  box-shadow: 0 0 3px rgba(0,0,0,.3);
+}
+/* Different positions */
+.corner-ribbon.bottom-right{
+  top: auto;
+  right: -70px;
+  bottom: 25px;
+  left: auto;
+  transform: rotate(-45deg);
+  -webkit-transform: rotate(-45deg);
+}
+/* Colors */
+.corner-ribbon.white{background: #f0f0f0; color: #555;}
+.corner-ribbon.black{background: #333;}
+.corner-ribbon.grey{background: #999;}
+.corner-ribbon.blue{background: #39d;}
+.corner-ribbon.green{background: #2c7;}
+.corner-ribbon.turquoise{background: #1b9;}
+.corner-ribbon.purple{background: #95b;}
+.corner-ribbon.red{background: #e43;}
+.corner-ribbon.orange{background: #e82;}
+.corner-ribbon.yellow{background: #ec0;}  
 
 </style>
 

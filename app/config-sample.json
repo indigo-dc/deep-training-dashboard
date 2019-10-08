@@ -7,5 +7,7 @@
     "CMDB_URL": "https://indigo-paas.cloud.ba.infn.it/cmdb",
     "IM_URL": "https://indigo-paas.cloud.ba.infn.it/im",
     "TOSCA_TEMPLATES_DIR": "/opt/tosca-templates",
-    "SUPPORT_EMAIL": "support@example.com"
+    "SUPPORT_EMAIL": "support@example.com",
+    "EXTERNAL_LINKS": [ { "url": "https://indigo-paas.cloud.ba.infn.it/status-page", "menu_item_name": "Services status" } ],
+    "LOG_LEVEL": "info"
 }
