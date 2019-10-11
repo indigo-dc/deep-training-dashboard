@@ -1,5 +1,6 @@
 from app import app, iam_blueprint, sla as sla, settings, utils
-from flask import json, render_template, request, redirect, url_for, flash, session
+from werkzeug.exceptions import Forbidden
+from flask import json, render_template, request, redirect, url_for, flash, session, Markup
 import requests, json
 import yaml
 import io, os, sys
@@ -11,6 +12,7 @@ app.jinja_env.filters['tojson_pretty'] = utils.to_pretty_json
 toscaTemplates = utils.loadToscaTemplates(settings.toscaDir)
 toscaInfo = utils.extractToscaInfo(settings.toscaDir,settings.toscaParamsDir,toscaTemplates)
 
+app.logger.debug("TOSCA INFO: " + json.dumps(toscaInfo))
 app.logger.debug("EXTERNAL_LINKS: " + json.dumps(settings.external_links) )
 
 @app.before_request
@@ -77,6 +79,14 @@ def home():
 
     if account_info.ok:
         account_info_json = account_info.json()
+
+        if settings.iamGroups:
+            user_groups = account_info_json['groups']
+            if not set(settings.iamGroups).issubset(user_groups):
+                app.logger.debug("No match on group membership. User group membership: " + json.dumps(user_groups))
+                message = Markup('You need to be a member of the following IAM groups: {0}. <br> Please, visit <a href="{1}">{1}</a> and apply for the requested membership.'.format(json.dumps(settings.iamGroups), settings.iamUrl))
+                raise Forbidden(description=message)
+            
         session['username'] = account_info_json['name']
         session['gravatar'] = utils.avatar(account_info_json['email'], 26)
         session['organisation_name'] = account_info_json['organisation_name']
