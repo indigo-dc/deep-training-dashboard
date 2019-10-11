@@ -16,3 +16,5 @@ orchestratorConf = {
 }
 
 external_links = app.config.get('EXTERNAL_LINKS') if app.config.get('EXTERNAL_LINKS') else []
+
+iamGroups = app.config.get('IAM_GROUP_MEMBERSHIP')
