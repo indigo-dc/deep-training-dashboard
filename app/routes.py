@@ -62,7 +62,7 @@ def getslas():
 
   try:
     access_token = iam_blueprint.session.token['access_token']
-    slas = sla.get_slas(access_token, settings.orchestratorConf['slam_url'], settings.orchestratorConf['cdb_url'])
+    slas = sla.get_slas(access_token, settings.orchestratorConf['slam_url'], settings.orchestratorConf['cmdb_url'])
 
   except Exception as e:
         flash("Error retrieving SLAs list: \n" + str(e), 'warning')
@@ -176,7 +176,7 @@ def configure():
 
     selected_tosca = request.args['selected_tosca']
 
-    slas = sla.get_slas(access_token, settings.orchestratorConf['slam_url'], settings.orchestratorConf['cdb_url'])
+    slas = sla.get_slas(access_token, settings.orchestratorConf['slam_url'], settings.orchestratorConf['cmdb_url'])
 
     return render_template('createdep.html',
                            template=toscaInfo[selected_tosca],

@@ -10,7 +10,7 @@ iamUrl = app.config['IAM_BASE_URL']
 tempSlamUrl = app.config.get('SLAM_URL') if app.config.get('SLAM_URL') else "" 
 
 orchestratorConf = {
-  'cdb_url': app.config.get('CMDB_URL'),
+  'cmdb_url': app.config.get('CMDB_URL'),
   'slam_url': tempSlamUrl + "/rest/slam",
   'im_url': app.config.get('IM_URL')
 }
