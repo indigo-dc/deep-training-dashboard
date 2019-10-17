@@ -33,7 +33,8 @@ Create the `config.json` file (see the [example](app/config-sample.json)):
     "SLAM_URL": "https://indigo-slam.cloud.ba.infn.it:8443",
     "CMDB_URL": "https://indigo-paas.cloud.ba.infn.it/cmdb",
     "IM_URL": "https://indigo-paas.cloud.ba.infn.it/im",
-    "SUPPORT_EMAIL": "support@example.com"
+    "SUPPORT_EMAIL": "support@example.com",
+    "ENABLE_ADVANCED_MENU": "no"
 }
 ````
 Clone the tosca-templates repository to get a set of tosca templates that the dashboard will load, e.g.:

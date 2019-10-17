@@ -14,11 +14,14 @@ toscaInfo = utils.extractToscaInfo(settings.toscaDir,settings.toscaParamsDir,tos
 
 app.logger.debug("TOSCA INFO: " + json.dumps(toscaInfo))
 app.logger.debug("EXTERNAL_LINKS: " + json.dumps(settings.external_links) )
+app.logger.debug("ENABLE_ADVANCED_MENU: " + str(settings.enable_advanced_menu) )
 
 @app.before_request
 def before_request_checks():
     if 'external_links' not in session:
        session['external_links'] = settings.external_links
+    if 'enable_advanced_menu' not in session:
+       session['enable_advanced_menu'] = settings.enable_advanced_menu
 
 def validate_configuration():
    if not settings.orchestratorConf.get('im_url'):
@@ -177,6 +180,8 @@ def configure():
     selected_tosca = request.args['selected_tosca']
 
     slas = sla.get_slas(access_token, settings.orchestratorConf['slam_url'], settings.orchestratorConf['cmdb_url'])
+
+    app.logger.debug("Template: " + json.dumps(toscaInfo[selected_tosca]))
 
     return render_template('createdep.html',
                            template=toscaInfo[selected_tosca],

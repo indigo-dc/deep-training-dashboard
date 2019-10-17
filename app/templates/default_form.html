@@ -1,7 +1,9 @@
 <!-- start tabs creation section -->
 <ul class="nav nav-tabs">
   <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#InputValues">Input Values</a></li>
+  {% if session['enable_advanced_menu'] == "yes" %}
   <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#Advanced">Advanced</a></li>
+  {% endif %}
 </ul>
 <!-- end tab creation section -->
 <div class="tab-content">
