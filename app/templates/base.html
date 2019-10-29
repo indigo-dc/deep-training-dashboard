@@ -57,7 +57,7 @@
     </script>
 </head>
 <body>
-    <nav class="navbar navbar-dark bg-dark navbar-expand-md">
+    <nav class="navbar navbar-dark bg-dark navbar-expand-md sticky-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="{{ url_for("home") }}">PaaS Orchestrator Dashboard</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#myNavbar">
@@ -81,7 +81,7 @@
 			<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">External Links</a>
                         <div class="dropdown-menu">
 			    {% for link in session["external_links"] %}
-			      <a class="dropdown-item" href="{{ link.url }}">{{link.menu_item_name}}</a>
+			      <a class="dropdown-item" href="{{ link.url }}" target="blank">{{link.menu_item_name}}</a>
 			    {% endfor %}
                         </div>
                     </li>
@@ -104,5 +104,12 @@
         </div>
     </nav>
     {% block content %}{% endblock %}
+    {% include 'footer.html' %}
 </body>
 </html>
+
+<style>
+body {
+  margin-bottom: 70px
+}	  
+</style>
