@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 {% block content %}
-
 <div class="container mt-2" id="cardsContainer" xmlns="http://www.w3.org/1999/html">
     <div class="input-group mb-4">
       <div class="input-group-prepend">
@@ -39,7 +38,7 @@
     </div>
     {% endif %}
     {% endfor %}
-    {% if templates|count % 3 != 1 %}
+    {% if templates|count % 3 != 0 %}
     </div>
     {% endif %}
 </div>
