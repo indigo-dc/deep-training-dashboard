@@ -73,9 +73,6 @@ def extractToscaInfo(toscaDir, tosca_pars_dir, toscaTemplates):
                    for k,v in template['metadata'].items():
                        toscaInfo[tosca]["metadata"][k] = v
     
-                   if 'icon' not in template['metadata']:
-                       toscaInfo[tosca]["metadata"]['icon'] = "xxxx"
-    
                 if 'inputs' in template['topology_template']:
                    toscaInfo[tosca]['inputs'] = template['topology_template']['inputs']
     

@@ -55,7 +55,7 @@
     </script>
 </head>
 <body>
-    <nav class="navbar navbar-light bg-light navbar-expand-md">
+    <nav class="navbar navbar-light bg-light navbar-expand-md sticky-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="{{ url_for("home") }}">
             <img src="static/images/logo-deep.png" height="30" class="d-inline-block align-top" alt="">
@@ -67,6 +67,7 @@
                 <ul class="navbar-nav mr-auto">
                     {% if session['username'] %}
                     <li class="nav-item active"><a class="nav-link" href="{{ url_for("showdeployments") }}">Deployments</a></li>
+		    {% if session['enable_advanced_menu'] == "yes" %}
 		    <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">Advanced</a>
                         <div class="dropdown-menu">
@@ -74,12 +75,13 @@
                             <a class="dropdown-item" href="{{ url_for("show_settings") }}">Settings</a>
 			</div>
 		    </li>
+		    {% endif %}
 		    {% if session["external_links"]|length > 0 %}
 		    <li class="nav-item dropdown">
 			<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">External Links</a>
                         <div class="dropdown-menu">
 			    {% for link in session["external_links"] %}
-			      <a class="dropdown-item" href="{{ link.url }}">{{link.menu_item_name}}</a>
+			      <a class="dropdown-item" href="{{ link.url }}" target="blank">{{link.menu_item_name}}</a>
 			    {% endfor %}
                         </div>
                     </li>
@@ -102,5 +104,12 @@
         </div>
     </nav>
     {% block content %}{% endblock %}
+    {% include 'footer.html' %}
 </body>
 </html>
+
+<style>
+body {
+  margin-bottom: 70px
+}	  
+</style>

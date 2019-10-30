@@ -1,5 +1,6 @@
 from app import app, iam_blueprint, sla as sla, settings, utils
-from flask import json, render_template, request, redirect, url_for, flash, session
+from werkzeug.exceptions import Forbidden
+from flask import json, render_template, request, redirect, url_for, flash, session, Markup
 import requests, json
 import yaml
 import io, os, sys
@@ -11,12 +12,16 @@ app.jinja_env.filters['tojson_pretty'] = utils.to_pretty_json
 toscaTemplates = utils.loadToscaTemplates(settings.toscaDir)
 toscaInfo = utils.extractToscaInfo(settings.toscaDir,settings.toscaParamsDir,toscaTemplates)
 
+app.logger.debug("TOSCA INFO: " + json.dumps(toscaInfo))
 app.logger.debug("EXTERNAL_LINKS: " + json.dumps(settings.external_links) )
+app.logger.debug("ENABLE_ADVANCED_MENU: " + str(settings.enable_advanced_menu) )
 
 @app.before_request
 def before_request_checks():
     if 'external_links' not in session:
        session['external_links'] = settings.external_links
+    if 'enable_advanced_menu' not in session:
+       session['enable_advanced_menu'] = settings.enable_advanced_menu
 
 def validate_configuration():
    if not settings.orchestratorConf.get('im_url'):
@@ -60,7 +65,7 @@ def getslas():
 
   try:
     access_token = iam_blueprint.session.token['access_token']
-    slas = sla.get_slas(access_token, settings.orchestratorConf['slam_url'], settings.orchestratorConf['cdb_url'])
+    slas = sla.get_slas(access_token, settings.orchestratorConf['slam_url'], settings.orchestratorConf['cmdb_url'])
 
   except Exception as e:
         flash("Error retrieving SLAs list: \n" + str(e), 'warning')
@@ -77,6 +82,14 @@ def home():
 
     if account_info.ok:
         account_info_json = account_info.json()
+
+        if settings.iamGroups:
+            user_groups = account_info_json['groups']
+            if not set(settings.iamGroups).issubset(user_groups):
+                app.logger.debug("No match on group membership. User group membership: " + json.dumps(user_groups))
+                message = Markup('You need to be a member of the following IAM groups: {0}. <br> Please, visit <a href="{1}">{1}</a> and apply for the requested membership.'.format(json.dumps(settings.iamGroups), settings.iamUrl))
+                raise Forbidden(description=message)
+            
         session['username'] = account_info_json['name']
         session['gravatar'] = utils.avatar(account_info_json['email'], 26)
         session['organisation_name'] = account_info_json['organisation_name']
@@ -166,7 +179,9 @@ def configure():
 
     selected_tosca = request.args['selected_tosca']
 
-    slas = sla.get_slas(access_token, settings.orchestratorConf['slam_url'], settings.orchestratorConf['cdb_url'])
+    slas = sla.get_slas(access_token, settings.orchestratorConf['slam_url'], settings.orchestratorConf['cmdb_url'])
+
+    app.logger.debug("Template: " + json.dumps(toscaInfo[selected_tosca]))
 
     return render_template('createdep.html',
                            template=toscaInfo[selected_tosca],

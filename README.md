@@ -37,17 +37,15 @@ Create the `config.json` file (see the [example](app/config-sample.json)):
         "SLAM_URL": "https://indigo-slam.cloud.ba.infn.it:8443",
         "CMDB_URL": "https://indigo-paas.cloud.ba.infn.it/cmdb",
         "IM_URL": "https://indigo-paas.cloud.ba.infn.it/im",
-        "SUPPORT_EMAIL": "support@example.com"
+        "SUPPORT_EMAIL": "support@example.com",
+        "ENABLE_ADVANCED_MENU": "no"
     }
 
-Clone the `tosca-templates` repository to get a set of tosca templates that the
-dashboard will load, i.e.:
+Clone the tosca-templates repository to get a set of tosca templates that the dashboard will load, e.g.:
 
     git clone https://github.com/indigo-dc/tosca-templates -b stable/v3.0
 
-You need to run the Orchestrator dashboard on HTTPS (otherwise you will get an
-error); you can choose between:
-
+You need to run the Orchestrator dashboard on HTTPS (otherwise you will get an error); you can choose between
 - enabling the HTTPS support
 - using an HTTPS proxy
 
