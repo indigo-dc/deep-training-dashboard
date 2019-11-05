@@ -1,6 +1,8 @@
 import json, yaml, requests, os, io
+from collections import OrderedDict, defaultdict
 from fnmatch import fnmatch
 from hashlib import md5
+import urllib
 
 def to_pretty_json(value):
     return json.dumps(value, sort_keys=True,
@@ -98,3 +100,84 @@ def extractToscaInfo(toscaDir, tosca_pars_dir, toscaTemplates):
                                             toscaInfo[tosca]['tabs'] = pars_data["tabs"]
 
     return toscaInfo
+
+
+def get_modules(tosca_templates, default_tosca, tosca_dir):
+    """
+    We map modules available on the DEEP marketplace to available TOSCA files.
+    If a module doesn't have a custom TOSCA, a default TOSCA will be loaded.
+    """
+    # Get the list of available modules in the Marketplace
+    modules_yml = 'https://raw.githubusercontent.com/deephdc/deephdc.github.io/pelican/project_apps.yml'
+    r = requests.get(modules_yml)
+    yml_list = yaml.safe_load(r.content)
+    modules_list = [m['module'] for m in list(yml_list)]
+
+    # Add the option for an external module
+    modules_list.append('external')
+
+    modules = OrderedDict()
+    for module_url in modules_list:
+        module_name = os.path.basename(module_url).lower()
+
+        # Get module description from metadata.json
+        if module_name == 'external':
+            metadata = {'title': 'External module',
+                        'summary': 'Use your own external container',
+                        'tosca': [],
+                        'sources': {'docker_registry_repo': ''}
+                        }
+        else:
+            m_r = module_url.replace('https://github.com/', 'https://raw.githubusercontent.com/')
+            metadata_url = '{}/master/metadata.json'.format(m_r)
+            r = requests.get(metadata_url)
+            metadata = r.json()
+
+        for infra in ['cpu', 'gpu']:
+            name = '{}-{}'.format(module_name, infra)
+
+            if name in modules.keys():
+                raise Exception('Two modules are sharing the same name: {}'.format(name))
+
+            # Find tosca name from metadata
+            tosca = None
+            for t in metadata['tosca']:
+                if infra in t['title'].lower():  # for example 'cpu' in 'mesos (cpu)'
+                    try:
+                        tosca = os.path.basename(t['url'])
+                        if tosca not in tosca_templates:
+                            urllib.urlretrieve(t['url'], os.path.join(tosca_dir, tosca))
+                            break
+                    except Exception as e:
+                        tosca = None
+                        print('Error downloading TOSCA file for {}, using default TOSCA.'.format(name))
+            if tosca is None:
+                tosca = default_tosca
+
+            # Populate some parameters in the TOSCA args for the default case
+            tosca_inputs = defaultdict(dict)
+            if tosca == default_tosca:
+                tosca_inputs['docker_image']['default'] = metadata['sources']['docker_registry_repo'] + ':{}'.format(infra)
+
+                if infra == 'cpu':
+                    tosca_inputs['num_cpus']['default'] = 1
+                    tosca_inputs['num_gpus']['default'] = 0
+
+                elif infra == 'gpu':
+                    tosca_inputs['num_cpus']['default'] = 0
+                    tosca_inputs['num_gpus']['default'] = 1
+
+            # Build the module dict
+            modules[name] = {'tosca': {'name': tosca,
+                                       'inputs': tosca_inputs},
+                             'url': module_url,
+                             'infra': infra,
+                             'sources': metadata['sources'],
+                             'description': metadata['summary'] + '\n TOSCA name: {}'.format(tosca),
+                             'metadata': {'icon': 'https://cdn4.iconfinder.com/data/icons/mosaicon-04/512/websettings-512.png',
+                                          'display_name': metadata['title'],
+                                          'tag': infra  # add metadata keywords metadata['keywords']?
+                                          }
+                             }
+
+    return modules

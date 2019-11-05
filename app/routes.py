@@ -5,11 +5,20 @@ import yaml
 import io, os, sys
 from functools import wraps
 from packaging import version
+from copy import deepcopy
+
 
 app.jinja_env.filters['tojson_pretty'] = utils.to_pretty_json
 
 toscaTemplates = utils.loadToscaTemplates(settings.toscaDir)
-toscaInfo = utils.extractToscaInfo(settings.toscaDir,settings.toscaParamsDir,toscaTemplates)
+toscaInfo = utils.extractToscaInfo(settings.toscaDir,
+                                   settings.toscaParamsDir,
+                                   toscaTemplates)
+
+modules = utils.get_modules(tosca_templates=toscaTemplates,
+                            default_tosca=app.config['DEFAULT_TOSCA_NAME'],
+                            tosca_dir=settings.toscaDir)
+toscaTemplates = utils.loadToscaTemplates(settings.toscaDir)  # load again as we might have downloaded a new TOSCA during the get_modules
 
 app.logger.debug("EXTERNAL_LINKS: " + json.dumps(settings.external_links) )
 
@@ -82,7 +91,7 @@ def home():
         session['organisation_name'] = account_info_json['organisation_name']
         access_token = iam_blueprint.token['access_token']
 
-        return render_template('portfolio.html', templates=toscaInfo)
+        return render_template('portfolio.html', templates=modules)
 
 
 @app.route('/deployments')
@@ -164,12 +173,19 @@ def configure():
 
     access_token = iam_blueprint.session.token['access_token']
 
-    selected_tosca = request.args['selected_tosca']
+    selected_module = request.args['selected_module']
+    selected_tosca = modules[selected_module]['tosca']['name']
+
+    # Tosca info needs to be updated if the default tosca has been selected
+    tosca_info = toscaInfo[selected_tosca]
+    if selected_tosca == app.config['DEFAULT_TOSCA_NAME']:
+        tosca_info = deepcopy(tosca_info)
+        tosca_info['inputs'].update(modules[selected_module]['tosca']['inputs'])
 
     slas = sla.get_slas(access_token, settings.orchestratorConf['slam_url'], settings.orchestratorConf['cdb_url'])
 
     return render_template('createdep.html',
-                           template=toscaInfo[selected_tosca],
+                           template=tosca_info,
                            selectedTemplate=selected_tosca,
                            slas=slas)
 
