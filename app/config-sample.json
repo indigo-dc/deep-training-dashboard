@@ -7,7 +7,7 @@
     "CMDB_URL": "http://paas-tools.cloud.cnaf.infn.it:7777/cmdb",
     "IM_URL": "https://paas-xdc.cloud.cnaf.infn.it:8800",
     "TOSCA_TEMPLATES_DIR": "/opt/tosca-templates",
-    "DEFAULT_TOSCA_NAME": "deep-oc-generic-dev_mesos-webdav",
+    "DEFAULT_TOSCA_NAME": "deep-oc-mesos-webdav.yml",
     "SUPPORT_EMAIL": "support@example.com",
     "EXTERNAL_LINKS": [ { "url": "https://indigo-paas.cloud.ba.infn.it/status-page", "menu_item_name": "Services status" } ],
     "LOG_LEVEL": "info"
