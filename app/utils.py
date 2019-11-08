@@ -2,7 +2,8 @@ import json, yaml, requests, os, io
 from collections import OrderedDict, defaultdict
 from fnmatch import fnmatch
 from hashlib import md5
-import urllib
+import urllib.request
+from copy import deepcopy
 
 def to_pretty_json(value):
     return json.dumps(value, sort_keys=True,
@@ -46,7 +47,7 @@ def loadToscaTemplates(directory):
    return toscaTemplates
 
 
-def extractToscaInfo(toscaDir, tosca_pars_dir, toscaTemplates):
+def extractToscaInfo(toscaDir, tosca_pars_dir, toscaTemplates, default_tosca):
     toscaInfo = {}
     for tosca in toscaTemplates:
         with io.open( toscaDir + tosca) as stream:
@@ -99,6 +100,24 @@ def extractToscaInfo(toscaDir, tosca_pars_dir, toscaTemplates):
                                         if "tabs" in pars_data:
                                             toscaInfo[tosca]['tabs'] = pars_data["tabs"]
 
+    # Create two new default TOSCA templates for cpu and gpu
+    for infra in ['cpu', 'gpu']:
+        name = 'default-{}.yml'.format(infra)
+        info = deepcopy(toscaInfo[default_tosca])
+
+        info['inputs']['docker_image']['default'] = ':{}'.format(infra)
+
+        if infra == 'cpu':
+            info['inputs']['num_cpus']['default'] = 1
+            info['inputs']['num_gpus']['default'] = 0
+
+        elif infra == 'gpu':
+            info['inputs']['num_cpus']['default'] = 1
+            info['inputs']['num_gpus']['default'] = 1
+            info['inputs']['run_command']['default'] += ' --listen-port=$PORT0'
+
+        toscaInfo[name] = info
+
     return toscaInfo
 
 
@@ -120,10 +139,14 @@ def get_modules(tosca_templates, default_tosca, tosca_dir):
     for module_url in modules_list:
         module_name = os.path.basename(module_url).lower()
 
+        name = module_name
+        if name in modules.keys():
+            raise Exception('Two modules are sharing the same name: {}'.format(name))
+
         # Get module description from metadata.json
         if module_name == 'external':
-            metadata = {'title': 'External module',
-                        'summary': 'Use your own external container',
+            metadata = {'title': 'Run your own module',
+                        'summary': 'Use your own external container hosted in Dockerhub',
                         'tosca': [],
                         'sources': {'docker_registry_repo': ''}
                         }
@@ -133,51 +156,33 @@ def get_modules(tosca_templates, default_tosca, tosca_dir):
             r = requests.get(metadata_url)
             metadata = r.json()
 
-        for infra in ['cpu', 'gpu']:
-            name = '{}-{}'.format(module_name, infra)
+        # Find tosca names from metadata
+        toscas = OrderedDict()
+        for t in metadata['tosca']:
+            try:
+                tosca_name = os.path.basename(t['url'])
+                if tosca_name == default_tosca:
+                    continue
+                if tosca_name not in tosca_templates:
+                    urllib.request.urlretrieve(t['url'], os.path.join(tosca_dir, tosca_name))
+                toscas[t['title']] = tosca_name
+            except Exception as e:
+                print('Error processing TOSCA in module {}'.format(module_name))
 
-            if name in modules.keys():
-                raise Exception('Two modules are sharing the same name: {}'.format(name))
+        # Add the two default TOSCAs for CPU and GPU
+        toscas['default-cpu'] = 'default-cpu.yml'
+        toscas['default-gpu'] = 'default-gpu.yml'
 
-            # Find tosca name from metadata
-            tosca = None
-            for t in metadata['tosca']:
-                if infra in t['title'].lower():  # for example 'cpu' in 'mesos (cpu)'
-                    try:
-                        tosca = os.path.basename(t['url'])
-                        if tosca not in tosca_templates:
-                            urllib.urlretrieve(t['url'], os.path.join(tosca_dir, tosca))
-                            break
-                    except Exception as e:
-                        tosca = None
-                        print('Error downloading TOSCA file for {}, using default TOSCA.'.format(name))
-            if tosca is None:
-                tosca = default_tosca
-
-            # Populate some parameters in the TOSCA args for the default case
-            tosca_inputs = defaultdict(dict)
-            if tosca == default_tosca:
-                tosca_inputs['docker_image']['default'] = metadata['sources']['docker_registry_repo'] + ':{}'.format(infra)
-
-                if infra == 'cpu':
-                    tosca_inputs['num_cpus']['default'] = 1
-                    tosca_inputs['num_gpus']['default'] = 0
-
-                elif infra == 'gpu':
-                    tosca_inputs['num_cpus']['default'] = 0
-                    tosca_inputs['num_gpus']['default'] = 1
-
-            # Build the module dict
-            modules[name] = {'tosca': {'name': tosca,
-                                       'inputs': tosca_inputs},
-                             'url': module_url,
-                             'infra': infra,
-                             'sources': metadata['sources'],
-                             'description': metadata['summary'] + '\n TOSCA name: {}'.format(tosca),
-                             'metadata': {'icon': 'https://cdn4.iconfinder.com/data/icons/mosaicon-04/512/websettings-512.png',
-                                          'display_name': metadata['title'],
-                                          'tag': infra  # add metadata keywords metadata['keywords']?
-                                          }
-                             }
+        # Build the module dict
+        modules[module_name] = {'toscas': toscas,
+                                'url': module_url,
+                                'title': metadata['title'],
+                                'sources': metadata['sources'],
+                                'description': metadata['summary'],
+                                'metadata': {'icon': 'https://cdn4.iconfinder.com/data/icons/mosaicon-04/512/websettings-512.png',
+                                             'display_name': metadata['title'],
+                                             'tag': 'cpu, gpu'
+                                             }
+                                }
 
     return modules

@@ -11,12 +11,13 @@ from copy import deepcopy
 app.jinja_env.filters['tojson_pretty'] = utils.to_pretty_json
 
 toscaTemplates = utils.loadToscaTemplates(settings.toscaDir)
-toscaInfo = utils.extractToscaInfo(settings.toscaDir,
-                                   settings.toscaParamsDir,
-                                   toscaTemplates)
+toscaInfo = utils.extractToscaInfo(toscaDir=settings.toscaDir,
+                                   tosca_pars_dir=settings.toscaParamsDir,
+                                   toscaTemplates=toscaTemplates,
+                                   default_tosca=settings.default_tosca)
 
 modules = utils.get_modules(tosca_templates=toscaTemplates,
-                            default_tosca=app.config['DEFAULT_TOSCA_NAME'],
+                            default_tosca=settings.default_tosca,
                             tosca_dir=settings.toscaDir)
 toscaTemplates = utils.loadToscaTemplates(settings.toscaDir)  # load again as we might have downloaded a new TOSCA during the get_modules
 
@@ -174,19 +175,28 @@ def configure():
     access_token = iam_blueprint.session.token['access_token']
 
     selected_module = request.args['selected_module']
-    selected_tosca = modules[selected_module]['tosca']['name']
+    available_tosca_titles = list(modules[selected_module]['toscas'].keys())
+    try:
+        selected_tosca_title = request.args['selected_tosca_title']
+    except:
+        selected_tosca_title = available_tosca_titles[0]
+    selected_tosca = modules[selected_module]['toscas'][selected_tosca_title]
 
-    # Tosca info needs to be updated if the default tosca has been selected
+    # Container path needs to be updated if the default tosca has been selected
     tosca_info = toscaInfo[selected_tosca]
-    if selected_tosca == app.config['DEFAULT_TOSCA_NAME']:
+    if selected_tosca in ['default-cpu.yml', 'default-gpu.yml']:
         tosca_info = deepcopy(tosca_info)
-        tosca_info['inputs'].update(modules[selected_module]['tosca']['inputs'])
+        tosca_info['inputs']['docker_image']['default'] = modules[selected_module]['sources']['docker_registry_repo'] + \
+                                                          tosca_info['inputs']['docker_image']['default']
 
     slas = sla.get_slas(access_token, settings.orchestratorConf['slam_url'], settings.orchestratorConf['cdb_url'])
 
     return render_template('createdep.html',
                            template=tosca_info,
                            selectedTemplate=selected_tosca,
+                           selected_module=selected_module,
+                           selected_tosca_title=selected_tosca_title,
+                           available_tosca_titles=available_tosca_titles,
                            slas=slas)
 
 
@@ -204,45 +214,49 @@ def add_sla_to_template(template, sla_id):
     app.logger.debug(yaml.dump(template, default_flow_style=False))
 
     return template
-#        
-# 
+
+
 @app.route('/submit', methods=['POST'])
 @authorized_with_valid_token
 def createdep():
 
-  access_token = iam_blueprint.session.token['access_token']
+    access_token = iam_blueprint.session.token['access_token']
 
-  app.logger.debug("Form data: " + json.dumps(request.form.to_dict()))
+    app.logger.debug("Form data: " + json.dumps(request.form.to_dict()))
 
-  with io.open( settings.toscaDir + request.args.get('template')) as stream:
-      template = yaml.full_load(stream)
+    template = request.args.get('template')
+    if template in ['default-cpu.yml', 'default-gpu.yml']:  # this will not be needed if defaults were written back to disk
+        template = settings.default_tosca
 
-      form_data = request.form.to_dict()
-     
-      params={}
-      if 'extra_opts.keepLastAttempt' in form_data:
-         params['keepLastAttempt'] = 'true'
-      else:
-         params['keepLastAttempt'] = 'false'
+    with io.open(os.path.join(settings.toscaDir, template)) as stream:
+        template = yaml.full_load(stream)
 
-      if form_data['extra_opts.schedtype'] == "man":
-          template = add_sla_to_template(template, form_data['extra_opts.selectedSLA'])
+        form_data = request.form.to_dict()
 
-      inputs = { k:v for (k,v) in form_data.items() if not k.startswith("extra_opts.") }
+        params = {}
+        if 'extra_opts.keepLastAttempt' in form_data:
+            params['keepLastAttempt'] = 'true'
+        else:
+            params['keepLastAttempt'] = 'false'
 
-      app.logger.debug("Parameters: " + json.dumps(inputs))
+        if form_data['extra_opts.schedtype'] == "man":
+            template = add_sla_to_template(template, form_data['extra_opts.selectedSLA'])
 
-      payload = { "template" : yaml.dump(template,default_flow_style=False, sort_keys=False), "parameters": inputs }
+        inputs = {k: v for (k,v) in form_data.items() if not k.startswith("extra_opts.") }
 
+        app.logger.debug("Parameters: " + json.dumps(inputs))
 
-  url = settings.orchestratorUrl +  "/deployments/"
-  headers = {'Content-Type': 'application/json', 'Authorization': 'bearer %s' % (access_token)}
-  response = requests.post(url, json=payload, params=params, headers=headers)
+        payload = {"template": yaml.dump(template,default_flow_style=False, sort_keys=False),
+                   "parameters": inputs }
 
-  if not response.ok:
-     flash("Error submitting deployment: \n" + response.text)
+    url = settings.orchestratorUrl + "/deployments/"
+    headers = {'Content-Type': 'application/json', 'Authorization': 'bearer {}'.format(access_token)}
+    response = requests.post(url, json=payload, params=params, headers=headers)
 
-  return redirect(url_for('showdeployments'))
+    if not response.ok:
+        flash("Error submitting deployment: \n" + response.text)
+
+    return redirect(url_for('showdeployments'))
  
 
 

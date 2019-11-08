@@ -32,7 +32,8 @@
 		</h5>
                 <p id="moduleDescription" class="card-text module-descr"><small>{{module['description']}}</small></p>
                 <a selector="moduleDescription" class="text-left badge badge-pill badge-info read_more" tabindex="0" data-toggle="popover" title="Full description" data-trigger="focus" data-content="{{module['description']}}">Read More</a>
-                <a href="{{ url_for('configure', selected_module=modulename) }}" class="badge badge-pill badge-primary">Configure</a>
+                <a href="{{ url_for('configure', selected_module=modulename) }}" class="badge badge-pill badge-primary">Deploy</a>
+                <a href="https://marketplace.deep-hybrid-datacloud.eu/modules/{{ module['title'].lower().replace(' ', '-') }}.html" class="badge badge-pill badge-primary">Marketplace</a>
             </div>
         </div>
     {% if loop.index % 3 == 0 %}

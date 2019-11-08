@@ -29,6 +29,8 @@
                 <tr>
                   <th>Deployment uuid</th>
                   <th>Status</th>
+                  <th>Container name</th>
+                  <th>GPUs</th>
                   <th>Creation time</th>
                   <th>Deployed At</th>
                   <th>Actions</th>
@@ -52,25 +54,43 @@
                     <span class="badge badge-warning text-white"><span class="spinner-grow spinner-grow-sm"></span>
                     {% endif %}
                     {{deployment.status}}</td>
+                    <td>{{deployment.outputs['Docker_image']}}</td>
+                    <td>{{deployment.outputs['Docker_num_gpus']}}</td>
                     <td>{{deployment.creationTime}}</td>
                     <td>{{deployment.cloudProviderName}}</td>
                     <td>
+
                       <div class="btn-group">
-                        <!-- DELETE -->
-                        <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#delete_confirm_{{deployment.uuid}}" data-backdrop="static" data-keyboard="false">
-                          <span class="fas fa-trash-alt mr-2"></span>Delete
+
+                      <!-- ACCESS -->
+                      <div class="dropdown">
+                        <button class="btn btn-primary dropdown-toggle mr-2" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" {% if not deployment.outputs %}disabled{% endif %}>
+                          Access
                         </button>
-                        <button type="button" class="btn btn-danger dropdown-toggle dropdown-toggle-split" data-toggle="dropdown">
-                          <span class="sr-only">Toggle Dropdown</span>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                          <a class="dropdown-item" onclick="window.open('http://{{ deployment.outputs['deepaas_endpoint'] }}','_blank')">DEEPaaS</a>
+                          <a class="dropdown-item" onclick="window.open('http://{{ deployment.outputs['jupyter_endpoint'] }}','_blank')">JupyterLab</a>
+                          <a class="dropdown-item" onclick="window.open('http://{{ deployment.outputs['monitor_endpoint'] }}','_blank')">Monitor</a>
+                        </div>
+                      </div>
+
+                      <!-- INFO -->
+                      <div class="dropdown">
+                        <button class="btn btn-info dropdown-toggle mr-2" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          Info
                         </button>
-                        <div class="dropdown-menu">
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                           <a class="dropdown-item" data-toggle="modal" data-target="#details{{deployment.uuid}}"><span class="fas fa-bars mr-2 grey-text"></span>Details</a>
                           <a class="dropdown-item" href="{{ url_for('deptemplate', depid=deployment.uuid) }}"><span class="fas fa-search mr-2 grey-text"></span>Show template</a>
-			  <a class="dropdown-item {% if deployment.physicalId is not defined %}disabled{% endif %}" href="{{ url_for('deplog', physicalId=deployment.physicalId) }}"><span class="fas fa-file-alt mr-2 grey-text"></span>Log</a>
+                          <a class="dropdown-item {% if deployment.physicalId is not defined %}disabled{% endif %}" href="{{ url_for('deplog', physicalId=deployment.physicalId) }}"><span class="fas fa-file-alt mr-2 grey-text"></span>Log</a>
+                        </div>
                       </div>
-                      <button class="btn btn-primary" onclick="window.open('http://{{ deployment.outputs['deepaas_endpoint'] }}','_blank')">
-                          Access
+
+                      <!-- DELETE -->
+                      <button type="button" class="btn btn-danger rounded" data-toggle="modal" data-target="#delete_confirm_{{deployment.uuid}}" data-backdrop="static" data-keyboard="false">
+                        <span class="fas fa-trash-alt mr-2"></span>Delete
                       </button>
+
                     </td>
                 </tr>
                 <!-- Modal DELETE -->
