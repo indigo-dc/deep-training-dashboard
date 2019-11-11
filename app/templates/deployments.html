@@ -106,8 +106,12 @@
                         Do you really want to delete the deployment {{deployment.uuid}}?
                       </div>
                       <div class="modal-footer">
-                        <a class="btn btn-primary cancelBtn" role="button" data-dismiss="modal">Cancel</a>
-                        <a class="btn btn-danger deleteBtn" role="button" href="{{ url_for("depdel", depid=deployment.uuid) }}">Delete deployment</a>
+                        <a class="btn btn-primary text-white" role="button" data-dismiss="modal">
+                            <span class="fas fa-ban mr-2"></span>Cancel</button>
+                        </a>
+                        <a class="btn btn-danger deleteBtn" role="button" href="{{ url_for("depdel", depid=deployment.uuid) }}">
+                            <span class="fas fa-trash-alt mr-2"></span>Delete deployment
+                        </a>
                       </div>
                     </div>
                   </div>
