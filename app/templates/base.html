@@ -31,6 +31,8 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
     <!-- Add favicon -->
     <link rel="icon" type="image/png" href="static/images/favicon_io/favicon-deep.png">
+    <link rel="stylesheet" type="text/css" href="static/css/screen.css" />
+
     <link rel="manifest" href="static/images/favicon_io/site.webmanifest">
     <!-- Dotdotdot -->
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jQuery.dotdotdot/4.0.9/dotdotdot.js"></script>
@@ -55,52 +57,10 @@
     </script>
 </head>
 <body>
-    <nav class="navbar navbar-light bg-light navbar-expand-md">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="{{ url_for("home") }}">
-            <img src="static/images/logo-deep.png" height="30" class="d-inline-block align-top" alt="">
-                DEEP-Hybrid-DataCloud training facility Dashboard</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#myNavbar">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-	    <div class="collapse navbar-collapse" id="myNavbar">
-                <ul class="navbar-nav mr-auto">
-                    {% if session['username'] %}
-                    <li class="nav-item active"><a class="nav-link" href="{{ url_for("showdeployments") }}">Deployments</a></li>
-		    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">Advanced</a>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item" href="{{ url_for("getslas") }}">SLAs</a>
-                            <a class="dropdown-item" href="{{ url_for("show_settings") }}">Settings</a>
-			</div>
-		    </li>
-		    {% if session["external_links"]|length > 0 %}
-		    <li class="nav-item dropdown">
-			<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">External Links</a>
-                        <div class="dropdown-menu">
-			    {% for link in session["external_links"] %}
-			      <a class="dropdown-item" href="{{ link.url }}">{{link.menu_item_name}}</a>
-			    {% endfor %}
-                        </div>
-                    </li>
-		    {% endif %}
-                    {% endif %}
-                </ul>
-                {% if session['username'] %}
-                <ul class="navbar-nav ml-auto">
-	            <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">
-                            <img class="rounded-circle" src="{{ session['gravatar'] }}"</src> {{ session['username'] }}<span class="caret"></span>
-                        </a>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item" href="{{ url_for("logout") }}">Logout</a>
-                        </div>
-	            </li>
-                </ul>
-	        {% endif %}
-            </div>
-        </div>
-    </nav>
+    {% include 'navbar.html' %}
+    
     {% block content %}{% endblock %}
+    
+    {% include 'footer.html' %}
 </body>
 </html>

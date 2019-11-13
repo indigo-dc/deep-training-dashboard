@@ -1,0 +1,53 @@
+<nav class="navbar navbar-light bg-light navbar-expand-md">
+    <div class="container-fluid">
+
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#myNavbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="myNavbar">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for("home") }}">Training dashboard</a>
+                </li>
+            {% if session['username'] %}
+                <li class="nav-item active">
+                    <a class="nav-link" href="{{ url_for("showdeployments") }}">Deployments</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">Advanced</a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="{{ url_for("getslas") }}">SLAs</a>
+                        <a class="dropdown-item" href="{{ url_for("show_settings") }}">Settings</a>
+                    </div>
+                </li>
+                {% if session["external_links"]|length > 0 %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">External Links</a>
+                    <div class="dropdown-menu">
+                        {% for link in session["external_links"] %}
+                        <a class="dropdown-item" href="{{ link.url }}">{{link.menu_item_name}}</a>
+                        {% endfor %}
+                    </div>
+                </li>
+                {% endif %}
+            {% endif %}
+            </ul>
+            {% if session['username'] %}
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">
+                        <img class="rounded-circle" src="{{ session['gravatar'] }}"</src> {{ session['username'] }}<span class="caret"></span>
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="{{ url_for("logout") }}">Logout</a>
+                    </div>
+                </li>
+            </ul>
+            {% endif %}
+            <img src="static/images/logo-deep-solid-white.png" height="30" class="d-inline-block align-top ml-auto" alt="">
+        </div>
+    </div>
+</nav>
+{% block content %}{% endblock %}
+
+
