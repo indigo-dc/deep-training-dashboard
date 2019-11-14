@@ -54,7 +54,7 @@ body {
     width: 100px;
 }
 
-.nav-link {
+nav .nav-link {
     font-family: Arial;
     text-transform: uppercase;
     font-size: 14px;
@@ -63,7 +63,7 @@ body {
     text-decoration: none;
     color: #ffffff !important;
 }
-.nav-link.active {
+nav .nav-link.active {
     color: #33C3F0;
 }
 
