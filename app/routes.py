@@ -35,7 +35,7 @@ def authorized_with_valid_token(f):
     def decorated_function(*args, **kwargs):
 
         if not iam_blueprint.session.authorized or 'username' not in session:
-           return redirect(url_for('login'))
+           return redirect(url_for('login', _external=True))
 
         if iam_blueprint.session.token['expires_in'] < 20:
             app.logger.debug("Force refresh token")
@@ -76,7 +76,7 @@ def getslas():
 @app.route('/')
 def home():
     if not iam_blueprint.session.authorized:
-        return redirect(url_for('login'))
+        return redirect(url_for('login', _external=True))
     
     account_info = iam_blueprint.session.get("/userinfo")
 
@@ -131,7 +131,7 @@ def deptemplate(depid=None):
 
     if not response.ok:
       flash("Error getting template: " + response.text)
-      return redirect(url_for('home'))
+      return redirect(url_for('home', _external=True))
 
     template = response.text
     return render_template('deptemplate.html', template=template)
@@ -168,7 +168,7 @@ def depdel(depid=None):
     if not response.ok:
         flash("Error deleting deployment: " + response.text);
   
-    return redirect(url_for('showdeployments'))
+    return redirect(url_for('showdeployments', _external=True))
 
 
 @app.route('/configure')
@@ -241,7 +241,7 @@ def createdep():
   if not response.ok:
      flash("Error submitting deployment: \n" + response.text)
 
-  return redirect(url_for('showdeployments'))
+  return redirect(url_for('showdeployments', _external=True))
  
 
 
@@ -249,4 +249,4 @@ def createdep():
 def logout():
    session.clear()
    iam_blueprint.session.get("/logout")
-   return redirect(url_for('login'))
+   return redirect(url_for('login', _external=True))
