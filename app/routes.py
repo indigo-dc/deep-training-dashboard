@@ -271,7 +271,7 @@ def createdep():
     if not response.ok:
         flash("Error submitting deployment: \n" + response.text)
 
-  return redirect(url_for('showdeployments', _external=True)) 
+    return redirect(url_for('showdeployments', _external=True)) 
 
 
 @app.route('/logout')
