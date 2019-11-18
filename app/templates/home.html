@@ -8,27 +8,30 @@
 }
 </style-->
 
-<div class = "jumbotron jumbotron-fluid">
-  <div class="container">
-    <div class="row">
-     <div class="col-lg-7">
-     <h1 class="display-3">DEEP Training Dashboard</h1>
-     <p>
-         Welcome to the 
-         <a href="https://deep-hybrid-datacloud.eu/">DEEP-Hybrid-DataCloud</a>
-         training facility Dashboard. From this portal you will be able to
-         train any model from the 
-         <a href="https://marketplace.deep-hybrid-datacloud.eu"/>DEEP Marketplace</a> or your own built model.
-     </p>
-     <p>Please refer to the <a href="https://docs.deep-hybrid-datacloud.eu/">documentation</a> for more information.</p>
-     <p>
-        <a class="btn btn-primary btn-lg" role="button" href="{{ url_for("iam.login") }}">Login with the DEEP IAM &raquo;</a>
-     </p>
-     </div>
-     <div class="col-lg-5">
-	<img src="static/images/orchestrator-logo.png"></img>
-     </div>
-  </div>
+<div class = "jumbotron jumbotron-fluid header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-7">
+                <h1 class="display-3">DEEP Training Dashboard</h1>
+                <p>
+                    Welcome to the 
+                    <a href="https://deep-hybrid-datacloud.eu/">DEEP-Hybrid-DataCloud</a>
+                    training facility Dashboard. From this portal you will be able to
+                    train any model from the 
+                    <a href="https://marketplace.deep-hybrid-datacloud.eu"/>DEEP Marketplace</a> or your own built model.
+                 </p>
+                 <p>
+                    Please refer to the <a href="https://docs.deep-hybrid-datacloud.eu/">documentation</a> for more information.
+                 </p>
+                 <p>
+                    <a class="btn btn-primary btn-lg" role="button" href="{{ url_for("iam.login") }}">Login with the DEEP IAM &raquo;</a>
+                 </p>
+            </div>
+            <div class="col-lg-5">
+                <img src="static/images/deep-cloud.png"></img>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
 

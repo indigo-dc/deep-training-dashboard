@@ -10,14 +10,32 @@
     <div class="card shadow mb-4">
         <div class="card-header py-3">
             <h4 class="font-weight-bold text-primary">
-            Template: {{selectedTemplate}}
+            Module: {{selected_module}}
             </h4>
         </div>
 
         <div class="card-body">
+{#            <div class="alert alert-info">#}
+{#                <strong>Description:</strong> {{template['description']}}#}
+{#            </div>#}
+
             <div class="alert alert-info">
-                <strong>Description:</strong> {{template['description']}}
+            <strong>Selected template</strong>
+            <form action="{{ url_for('configure', selected_module=selected_module, selected_tosca_title=selected_tosca_title) }}">
+                <input type="hidden" name="selected_module" value={{ selected_module }} />
+                <select name="selected_tosca_title" class="js-example-basic-single js-states form-control" onchange="this.form.submit()">
+                    {% for v in available_tosca_titles %}
+                        {% if v == selected_tosca_title  %}
+                            <option value="{{ v }}" selected>{{ v }}</option>
+                        {% else %}
+                            <option value="{{ v }}">{{ v }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </form>
             </div>
+
+            <br style="line-height:1;"><br>
 
             <form id="depSubmit" action="{{ url_for('createdep', template=selectedTemplate) }}" method="post">
             {% if template['enable_config_form'] is defined and template['enable_config_form'] is sameas true %}

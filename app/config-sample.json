@@ -1,13 +1,36 @@
 {
     "IAM_CLIENT_ID": "my_client_id",
     "IAM_CLIENT_SECRET": "my_client_secret",
-    "IAM_BASE_URL": "https://iam-test.indigo-datacloud.eu",
-    "ORCHESTRATOR_URL": "https://indigo-paas.cloud.ba.infn.it/orchestrator",
-    "SLAM_URL": "https://indigo-slam.cloud.ba.infn.it:8443",
-    "CMDB_URL": "https://indigo-paas.cloud.ba.infn.it/cmdb",
-    "IM_URL": "https://indigo-paas.cloud.ba.infn.it/im",
-    "TOSCA_TEMPLATES_DIR": "/opt/tosca-templates",
-    "SUPPORT_EMAIL": "support@example.com",
-    "EXTERNAL_LINKS": [ { "url": "https://indigo-paas.cloud.ba.infn.it/status-page", "menu_item_name": "Services status" } ],
+    "IAM_BASE_URL": "https://iam.deep-hybrid-datacloud.eu",
+
+    "ORCHESTRATOR_URL": "https://paas.cloud.cnaf.infn.it/orchestrator",
+    "SLAM_URL": "https://paas.cloud.cnaf.infn.it:8443",
+    "CMDB_URL": "http://paas-tools.cloud.cnaf.infn.it:7777/cmdb",
+    "IM_URL": "https://paas-xdc.cloud.cnaf.infn.it:8800",
+
+    "TOSCA_TEMPLATES_DIR": "../tosca-templates/deep-oc",
+    "DEFAULT_TOSCA_NAME": "deep-oc-mesos-webdav.yml",
+
+    "SUPPORT_EMAIL": "deep-support@listas.csic.es",
+
+    "EXTERNAL_LINKS": [
+        {
+            "url": "https://marketplace.deep-hybrid-datacloud.eu",
+            "menu_item_name": "DEEP Marketplace"
+        },
+        {
+            "url": "https://docs.deep-hybrid-datacloud.eu",
+            "menu_item_name": "Documentation"
+        },
+        {
+            "url": "https://deep-hybrid-datacloud.eu",
+            "menu_item_name": "DEEP-Hybrid-DataCloud project page"
+        },
+        {
+            "url": "https://indigo-paas.cloud.ba.infn.it/status-page",
+            "menu_item_name": "Service status"
+        }
+    ],
+
     "LOG_LEVEL": "info"
 }

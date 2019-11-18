@@ -3,6 +3,7 @@ from app import app
 toscaDir = app.config['TOSCA_TEMPLATES_DIR'] + "/"
 toscaParamsDir = app.config.get('TOSCA_PARAMETERS_DIR')
 orchestratorUrl = app.config['ORCHESTRATOR_URL']
+default_tosca = app.config['DEFAULT_TOSCA_NAME']
 
 iamUrl = app.config['IAM_BASE_URL']
 
