@@ -1,12 +1,16 @@
-from app import app, iam_blueprint, sla as sla, settings, utils
-from werkzeug.exceptions import Forbidden
-from flask import json, render_template, request, redirect, url_for, flash, session, Markup
-import requests, json
+import io
+import os
 import yaml
-import io, os, sys
+import json
 from functools import wraps
 from packaging import version
 from copy import deepcopy
+
+import requests
+from werkzeug.exceptions import Forbidden
+from flask import json, render_template, request, redirect, url_for, flash, session, Markup
+
+from app import app, iam_blueprint, sla, settings, utils
 
 
 app.jinja_env.filters['tojson_pretty'] = utils.to_pretty_json
@@ -22,30 +26,33 @@ modules = utils.get_modules(tosca_templates=toscaTemplates,
                             tosca_dir=settings.toscaDir)
 toscaTemplates = utils.loadToscaTemplates(settings.toscaDir)  # load again as we might have downloaded a new TOSCA during the get_modules
 
-app.logger.debug("TOSCA INFO: " + json.dumps(toscaInfo))
-app.logger.debug("EXTERNAL_LINKS: " + json.dumps(settings.external_links) )
-app.logger.debug("ENABLE_ADVANCED_MENU: " + str(settings.enable_advanced_menu) )
+app.logger.debug("TOSCA INFO: {}".format(toscaInfo))
+app.logger.debug("EXTERNAL_LINKS: {}".format(settings.external_links))
+app.logger.debug("ENABLE_ADVANCED_MENU: {}".format(settings.enable_advanced_menu))
+
 
 @app.before_request
 def before_request_checks():
     if 'external_links' not in session:
-       session['external_links'] = settings.external_links
+        session['external_links'] = settings.external_links
     if 'enable_advanced_menu' not in session:
-       session['enable_advanced_menu'] = settings.enable_advanced_menu
+        session['enable_advanced_menu'] = settings.enable_advanced_menu
+
 
 def validate_configuration():
-   if not settings.orchestratorConf.get('im_url'):
-       app.logger.debug("Trying to (re)load config from Orchestrator: " + json.dumps(settings.orchestratorConf))
-       access_token = iam_blueprint.session.token['access_token']
-       configuration = utils.getOrchestratorConfiguration(settings.orchestratorUrl, access_token)
-       settings.orchestratorConf = configuration
+    if not settings.orchestratorConf.get('im_url'):
+        app.logger.debug("Trying to (re)load config from Orchestrator: " + json.dumps(settings.orchestratorConf))
+        access_token = iam_blueprint.session.token['access_token']
+        configuration = utils.getOrchestratorConfiguration(settings.orchestratorUrl, access_token)
+        settings.orchestratorConf = configuration
+
 
 def authorized_with_valid_token(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
 
         if not iam_blueprint.session.authorized or 'username' not in session:
-           return redirect(url_for('login', _external=True))
+            return redirect(url_for('login', _external=True))
 
         if iam_blueprint.session.token['expires_in'] < 20:
             app.logger.debug("Force refresh token")
@@ -57,30 +64,34 @@ def authorized_with_valid_token(f):
 
     return decorated_function
 
+
 @app.route('/settings')
 @authorized_with_valid_token
 def show_settings():
-    return render_template('settings.html', iam_url=settings.iamUrl, orchestrator_url=settings.orchestratorUrl, orchestrator_conf=settings.orchestratorConf)
+    return render_template('settings.html',
+                           iam_url=settings.iamUrl,
+                           orchestrator_url=settings.orchestratorUrl,
+                           orchestrator_conf=settings.orchestratorConf)
+
 
 @app.route('/login')
 def login():
     session.clear()
     return render_template('home.html')
 
+
 @app.route('/slas')
 @authorized_with_valid_token
 def getslas():
 
-  slas={}
-
-  try:
-    access_token = iam_blueprint.session.token['access_token']
-    slas = sla.get_slas(access_token, settings.orchestratorConf['slam_url'], settings.orchestratorConf['cmdb_url'])
-
-  except Exception as e:
+    slas = {}
+    try:
+        access_token = iam_blueprint.session.token['access_token']
+        slas = sla.get_slas(access_token, settings.orchestratorConf['slam_url'], settings.orchestratorConf['cmdb_url'])
+    except Exception as e:
         flash("Error retrieving SLAs list: \n" + str(e), 'warning')
 
-  return render_template('sla.html', slas=slas)
+    return render_template('sla.html', slas=slas)
 
 
 @app.route('/')
@@ -97,13 +108,15 @@ def home():
             user_groups = account_info_json['groups']
             if not set(settings.iamGroups).issubset(user_groups):
                 app.logger.debug("No match on group membership. User group membership: " + json.dumps(user_groups))
-                message = Markup('You need to be a member of the following IAM groups: {0}. <br> Please, visit <a href="{1}">{1}</a> and apply for the requested membership.'.format(json.dumps(settings.iamGroups), settings.iamUrl))
+                message = Markup('''
+                You need to be a member of the following IAM groups: {0}. <br>
+                Please, visit <a href="{1}">{1}</a> and apply for the requested membership.
+                '''.format(json.dumps(settings.iamGroups), settings.iamUrl))
                 raise Forbidden(description=message)
             
         session['username'] = account_info_json['name']
         session['gravatar'] = utils.avatar(account_info_json['email'], 26)
         session['organisation_name'] = account_info_json['organisation_name']
-        access_token = iam_blueprint.token['access_token']
 
         return render_template('portfolio.html', templates=modules)
 
@@ -113,10 +126,8 @@ def home():
 def showdeployments():
 
     access_token = iam_blueprint.session.token['access_token']
-
-    headers = {'Authorization': 'bearer %s' % (access_token)}
-
-    url = settings.orchestratorUrl +  "/deployments?createdBy=me&page=0&size=9999"
+    headers = {'Authorization': 'bearer {}'.format(access_token)}
+    url = settings.orchestratorUrl + "/deployments?createdBy=me&page=0&size=9999"
     response = requests.get(url, headers=headers)
 
     deployments = {}
@@ -128,41 +139,38 @@ def showdeployments():
     return render_template('deployments.html', deployments=deployments)
 
 
-
 @app.route('/template/<depid>')
 @authorized_with_valid_token
 def deptemplate(depid=None):
 
     access_token = iam_blueprint.session.token['access_token']
-    headers = {'Authorization': 'bearer %s' % (access_token)}
-
+    headers = {'Authorization': 'bearer {}'.format(access_token)}
     url = settings.orchestratorUrl + "/deployments/" + depid + "/template"
     response = requests.get(url, headers=headers)
 
     if not response.ok:
-      flash("Error getting template: " + response.text)
-      return redirect(url_for('home', _external=True))
+        flash("Error getting template: " + response.text)
+        return redirect(url_for('home', _external=True))
 
     template = response.text
     return render_template('deptemplate.html', template=template)
-#
+
 
 @app.route('/log/<physicalId>')
 @authorized_with_valid_token
 def deplog(physicalId=None):
 
-    access_token = iam_blueprint.session.token['access_token']
-    headers = {'Authorization': 'id = im; type = InfrastructureManager; token = %s;' % (access_token)}
-
     app.logger.debug("Configuration: " + json.dumps(settings.orchestratorConf))
 
+    access_token = iam_blueprint.session.token['access_token']
+    headers = {'Authorization': 'id = im; type = InfrastructureManager; token = {};'.format(access_token)}
     url = settings.orchestratorConf['im_url'] + "/infrastructures/" + physicalId + "/contmsg"
     response = requests.get(url, headers=headers, verify=False)
 
     if not response.ok:
-      log="Not found"
+        log = "Not found"
     else:
-      log = response.text
+        log = response.text
     return render_template('deplog.html', log=log)
 
 
@@ -171,12 +179,12 @@ def deplog(physicalId=None):
 def depdel(depid=None):
 
     access_token = iam_blueprint.session.token['access_token']
-    headers = {'Authorization': 'bearer %s' % (access_token)}
+    headers = {'Authorization': 'bearer {}'.format(access_token)}
     url = settings.orchestratorUrl + "/deployments/" + depid
     response = requests.delete(url, headers=headers)
        
     if not response.ok:
-        flash("Error deleting deployment: " + response.text);
+        flash("Error deleting deployment: " + response.text)
   
     return redirect(url_for('showdeployments', _external=True))
 
@@ -191,7 +199,7 @@ def configure():
     available_tosca_titles = list(modules[selected_module]['toscas'].keys())
     try:
         selected_tosca_title = request.args['selected_tosca_title']
-    except:
+    except Exception:
         selected_tosca_title = available_tosca_titles[0]
     selected_tosca = modules[selected_module]['toscas'][selected_tosca_title]
 
@@ -224,7 +232,7 @@ def add_sla_to_template(template, sla_id):
         toscaSlaPlacementType = "tosca.policies.Placement"
 
     template['topology_template']['policies'] = [
-           {"deploy_on_specific_site": { "type": toscaSlaPlacementType, "properties": {"sla_id": sla_id}}}]
+           {"deploy_on_specific_site": {"type": toscaSlaPlacementType, "properties": {"sla_id": sla_id}}}]
 
     app.logger.debug(yaml.dump(template, default_flow_style=False))
 
@@ -234,8 +242,6 @@ def add_sla_to_template(template, sla_id):
 @app.route('/submit', methods=['POST'])
 @authorized_with_valid_token
 def createdep():
-
-    access_token = iam_blueprint.session.token['access_token']
 
     app.logger.debug("Form data: " + json.dumps(request.form.to_dict()))
 
@@ -257,15 +263,16 @@ def createdep():
         if form_data['extra_opts.schedtype'] == "man":
             template = add_sla_to_template(template, form_data['extra_opts.selectedSLA'])
 
-        inputs = {k: v for (k,v) in form_data.items() if not k.startswith("extra_opts.") }
+        inputs = {k: v for (k, v) in form_data.items() if not k.startswith("extra_opts.")}
 
         app.logger.debug("Parameters: " + json.dumps(inputs))
 
-        payload = {"template": yaml.dump(template,default_flow_style=False, sort_keys=False),
-                   "parameters": inputs }
+        payload = {"template": yaml.dump(template, default_flow_style=False, sort_keys=False),
+                   "parameters": inputs}
 
-    url = settings.orchestratorUrl + "/deployments/"
+    access_token = iam_blueprint.session.token['access_token']
     headers = {'Content-Type': 'application/json', 'Authorization': 'bearer {}'.format(access_token)}
+    url = settings.orchestratorUrl + "/deployments/"
     response = requests.post(url, json=payload, params=params, headers=headers)
 
     if not response.ok:
@@ -276,6 +283,6 @@ def createdep():
 
 @app.route('/logout')
 def logout():
-   session.clear()
-   iam_blueprint.session.get("/logout")
-   return redirect(url_for('login', _external=True))
+    session.clear()
+    iam_blueprint.session.get("/logout")
+    return redirect(url_for('login', _external=True))
