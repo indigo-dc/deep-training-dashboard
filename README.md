@@ -45,6 +45,7 @@ The docker image uses [Gunicorn](https://gunicorn.org/) as WSGI HTTP server to s
     
         "TOSCA_TEMPLATES_DIR": "../tosca-templates/deep-oc",
         "DEFAULT_TOSCA_NAME": "deep-oc-mesos-webdav.yml",
+        "MODULES_YML": "https://raw.githubusercontent.com/deephdc/deep-oc/master/MODULES.yml",
     
         "SUPPORT_EMAIL": "deep-support@listas.csic.es",
     
