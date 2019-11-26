@@ -5,6 +5,9 @@ from hashlib import md5
 import urllib.request
 from copy import deepcopy
 
+from app import settings
+
+
 def to_pretty_json(value):
     return json.dumps(value, sort_keys=True,
                       indent=4, separators=(',', ': '))
@@ -124,9 +127,11 @@ def get_modules(tosca_templates, default_tosca, tosca_dir):
     If a module doesn't have a custom TOSCA, a default TOSCA will be loaded.
     """
     # Get the list of available modules in the Marketplace
-    modules_yml = 'https://raw.githubusercontent.com/deephdc/deephdc.github.io/pelican/project_apps.yml'
-    r = requests.get(modules_yml)
+    r = requests.get(settings.modules_yml)
+    r.raise_for_status()
     yml_list = yaml.safe_load(r.content)
+    if not yml_list:
+        raise Exception('No modules found in {}'.format(settings.modules_yml))
     modules_list = [m['module'] for m in list(yml_list)]
 
     # Add the option for an external module
