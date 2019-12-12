@@ -143,9 +143,8 @@ def get_modules(tosca_templates, default_tosca, tosca_dir):
     for module_url in modules_list:
         module_name = os.path.basename(module_url).lower()
 
-        name = module_name
-        if name in modules.keys():
-            raise Exception('Two modules are sharing the same name: {}'.format(name))
+        if module_name in modules.keys():
+            raise Exception('Two modules are sharing the same name: {}'.format(module_name))
 
         # Get module description from metadata.json
         if module_name == 'external':
@@ -176,6 +175,8 @@ def get_modules(tosca_templates, default_tosca, tosca_dir):
         # Add the two default TOSCAs for CPU and GPU
         toscas['default-cpu'] = 'default-cpu.yml'
         toscas['default-gpu'] = 'default-gpu.yml'
+
+        module_name = module_name.replace('_', '-')
 
         # Build the module dict
         modules[module_name] = {'toscas': toscas,

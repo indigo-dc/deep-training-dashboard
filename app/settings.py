@@ -14,8 +14,6 @@ orchestratorConf = {
   'im_url': app.config.get('IM_URL')
 }
 
-external_links = app.config.get('EXTERNAL_LINKS') if app.config.get('EXTERNAL_LINKS') else []
-
-enable_advanced_menu = app.config.get('ENABLE_ADVANCED_MENU') if app.config.get('ENABLE_ADVANCED_MENU') else "no"
-
+external_links = app.config.get('EXTERNAL_LINKS', [])
+enable_advanced_menu = app.config.get('ENABLE_ADVANCED_MENU', "yes")
 iamGroups = app.config.get('IAM_GROUP_MEMBERSHIP')

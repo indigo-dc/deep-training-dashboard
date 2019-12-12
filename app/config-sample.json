@@ -33,5 +33,6 @@
         }
     ],
 
-    "LOG_LEVEL": "info"
+    "LOG_LEVEL": "info",
+    "ENABLE_ADVANCED_MENU": "yes"
 }
