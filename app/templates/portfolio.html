@@ -13,28 +13,25 @@
     <div class="card-deck">
     {% endif %}
 
-        <div class="card mb-4" style="max-width: 20rem; max-height: 25rem;">
+        <div class="card text-white bg-dark mb-4" style="max-width: 20rem; max-height: 25rem;">
             <div class="card-body">
                 <h5 class="card-title text-center">
-		  <strong>{% if module['metadata']['display_name'] is defined %}{{module['metadata']['display_name']}}{% else %}{{modulename}}{% endif %}</strong>
-		</h5>
-            </div>
-            <div class="wrapper">
-                <img class="card-img-bottom img-fluid" src="{{module['metadata']['icon']}}" alt="Card image cap">
-		{% if module['metadata']['tag'] is defined %}
-                   <div class="corner-ribbon bottom-right sticky green shadow">{{module['metadata']['tag']}}</div>
-                {% endif %}
-            </div>
-            <div class="card-img-overlay text-center">
-                <h5>
-		  <strong>{% if module['metadata']['display_name'] is defined %}{{module['metadata']['display_name']}}{% else %}{{modulename}}{% endif %}</strong>
-		</h5>
+                  <strong>{% if module['metadata']['display_name'] is defined %}{{module['metadata']['display_name']}}{% else %}{{modulename}}{% endif %}</strong>
+                </h5>
                 <p id="moduleDescription" class="card-text module-descr"><small>{{module['description']}}</small></p>
                 <a selector="moduleDescription" class="text-left badge badge-pill badge-info read_more" tabindex="0" data-toggle="popover" title="Full description" data-trigger="focus" data-content="{{module['description']}}">Read More</a>
-                <a href="{{ url_for('configure', selected_module=modulename) }}" class="badge badge-pill badge-primary">Deploy</a>
-                <a href="https://marketplace.deep-hybrid-datacloud.eu/modules/{{ module['title'].lower().replace(' ', '-') }}.html" class="badge badge-pill badge-primary">Marketplace</a>
+            </div>
+
+            <div class="btn-group btn-group-sm mx-auto">
+                <a class="btn btn-primary rounded mx-1 my-3 p-2" href="{{ url_for('configure', selected_module=modulename) }}">
+                Train module
+                </a>
+                <a class="btn btn-info rounded mx-1 my-3 p-2" href="https://marketplace.deep-hybrid-datacloud.eu/modules/{{ module['title'].lower().replace(' ', '-') }}.html">
+                Marketplace
+                </a>
             </div>
         </div>
+
     {% if loop.index % 3 == 0 %}
     </div>
     {% endif %}
