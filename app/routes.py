@@ -33,10 +33,8 @@ app.logger.debug("ENABLE_ADVANCED_MENU: {}".format(settings.enable_advanced_menu
 
 @app.before_request
 def before_request_checks():
-    if 'external_links' not in session:
-        session['external_links'] = settings.external_links
-    if 'enable_advanced_menu' not in session:
-        session['enable_advanced_menu'] = settings.enable_advanced_menu
+    session['external_links'] = settings.external_links
+    session['enable_advanced_menu'] = settings.enable_advanced_menu
 
 
 def validate_configuration():
@@ -189,13 +187,13 @@ def depdel(depid=None):
     return redirect(url_for('showdeployments', _external=True))
 
 
-@app.route('/configure')
+@app.route('/module/<selected_module>')
 @authorized_with_valid_token
-def configure():
+def configure(selected_module):
 
     access_token = iam_blueprint.session.token['access_token']
 
-    selected_module = request.args['selected_module']
+    # selected_module = request.args['selected_module']
     available_tosca_titles = list(modules[selected_module]['toscas'].keys())
     try:
         selected_tosca_title = request.args['selected_tosca_title']

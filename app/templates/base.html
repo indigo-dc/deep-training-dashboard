@@ -30,10 +30,10 @@
     <!-- FontAwesome-->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
     <!-- Add favicon -->
-    <link rel="icon" type="image/png" href="static/images/favicon_io/favicon-deep.png">
-    <link rel="stylesheet" type="text/css" href="static/css/screen.css" />
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon_io/favicon-deep.png') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/screen.css') }}" />
 
-    <link rel="manifest" href="static/images/favicon_io/site.webmanifest">
+    <link rel="manifest" href="{{ url_for('static', filename='images/favicon_io/site.webmanifest') }}">
     <!-- Dotdotdot -->
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jQuery.dotdotdot/4.0.9/dotdotdot.js"></script>
     <!-- Cookie Consent -->

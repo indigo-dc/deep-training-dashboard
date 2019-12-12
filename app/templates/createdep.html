@@ -22,7 +22,6 @@
             <div class="alert alert-info">
             <strong>Selected template</strong>
             <form action="{{ url_for('configure', selected_module=selected_module, selected_tosca_title=selected_tosca_title) }}">
-                <input type="hidden" name="selected_module" value={{ selected_module }} />
                 <select name="selected_tosca_title" class="js-example-basic-single js-states form-control" onchange="this.form.submit()">
                     {% for v in available_tosca_titles %}
                         {% if v == selected_tosca_title  %}
