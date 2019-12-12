@@ -68,7 +68,8 @@ The docker image uses [Gunicorn](https://gunicorn.org/) as WSGI HTTP server to s
             }
         ],
     
-        "LOG_LEVEL": "info"
+        "LOG_LEVEL": "info",
+        "ENABLE_ADVANCED_MENU": "yes"
     }
     ```
     
