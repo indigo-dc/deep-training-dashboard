@@ -68,9 +68,9 @@
                           Access
                         </button>
                         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                          <a class="dropdown-item" onclick="window.open('http://{{ deployment.outputs['deepaas_endpoint'] }}','_blank')">DEEPaaS</a>
-                          <a class="dropdown-item" onclick="window.open('http://{{ deployment.outputs['jupyter_endpoint'] }}','_blank')">JupyterLab</a>
-                          <a class="dropdown-item" onclick="window.open('http://{{ deployment.outputs['monitor_endpoint'] }}','_blank')">Monitor</a>
+                          <a class="dropdown-item" onclick="window.open('http://{{ deployment.outputs['deepaas_endpoint'] }}','_blank')" href="">DEEPaaS</a>
+                          <a class="dropdown-item" onclick="window.open('http://{{ deployment.outputs['jupyter_endpoint'] }}','_blank')" href="">JupyterLab</a>
+                          <a class="dropdown-item" onclick="window.open('http://{{ deployment.outputs['monitor_endpoint'] }}','_blank')" href="">Monitor</a>
                         </div>
                       </div>
 
@@ -80,7 +80,7 @@
                           Info
                         </button>
                         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                          <a class="dropdown-item" data-toggle="modal" data-target="#details{{deployment.uuid}}"><span class="fas fa-bars mr-2 grey-text"></span>Details</a>
+                          <a class="dropdown-item" href="" data-toggle="modal" data-target="#details{{deployment.uuid}}"><span class="fas fa-bars mr-2 grey-text"></span>Details</a>
                           <a class="dropdown-item" href="{{ url_for('deptemplate', depid=deployment.uuid) }}"><span class="fas fa-search mr-2 grey-text"></span>Show template</a>
                           <a class="dropdown-item {% if deployment.physicalId is not defined %}disabled{% endif %}" href="{{ url_for('deplog', physicalId=deployment.physicalId) }}"><span class="fas fa-file-alt mr-2 grey-text"></span>Log</a>
                         </div>
