@@ -13,7 +13,7 @@
     <div class="card-deck">
     {% endif %}
 
-        <div class="card text-white bg-dark mb-4" style="max-width: 20rem; max-height: 25rem;">
+        <div class="card text-dark bg-light mb-4" style="max-width: 20rem; max-height: 25rem;">
             <div class="card-body">
                 <h5 class="card-title text-center">
                   <strong>{% if module['metadata']['display_name'] is defined %}{{module['metadata']['display_name']}}{% else %}{{modulename}}{% endif %}</strong>
@@ -23,10 +23,10 @@
             </div>
 
             <div class="btn-group btn-group-sm mx-auto">
-                <a class="btn btn-primary rounded mx-1 my-3 p-2" href="{{ url_for('configure', selected_module=modulename) }}">
+                <a class="btn btn-outline-dark rounded mx-1 my-3 p-2" href="{{ url_for('configure', selected_module=modulename) }}">
                 Train module
                 </a>
-                <a class="btn btn-info rounded mx-1 my-3 p-2" href="https://marketplace.deep-hybrid-datacloud.eu/modules/{{ module['title'].lower().replace(' ', '-') }}.html">
+                <a class="btn btn-outline-info rounded mx-1 my-3 p-2" href="https://marketplace.deep-hybrid-datacloud.eu/modules/{{ module['title'].lower().replace(' ', '-') }}.html">
                 Marketplace
                 </a>
             </div>
@@ -161,7 +161,7 @@ $(".module-descr").dotdotdot({
 .corner-ribbon.purple{background: #95b;}
 .corner-ribbon.red{background: #e43;}
 .corner-ribbon.orange{background: #e82;}
-.corner-ribbon.yellow{background: #ec0;}  
+.corner-ribbon.yellow{background: #ec0;}
 
 </style>
 
