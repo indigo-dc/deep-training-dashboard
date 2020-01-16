@@ -96,7 +96,7 @@ def getslas():
 def home():
     if not iam_blueprint.session.authorized:
         return redirect(url_for('login', _external=True))
-    
+
     account_info = iam_blueprint.session.get("/userinfo")
 
     if account_info.ok:
@@ -111,7 +111,7 @@ def home():
                 Please, visit <a href="{1}">{1}</a> and apply for the requested membership.
                 '''.format(json.dumps(settings.iamGroups), settings.iamUrl))
                 raise Forbidden(description=message)
-            
+
         session['username'] = account_info_json['name']
         session['gravatar'] = utils.avatar(account_info_json['email'], 26)
         session['organisation_name'] = account_info_json['organisation_name']
@@ -180,10 +180,10 @@ def depdel(depid=None):
     headers = {'Authorization': 'bearer {}'.format(access_token)}
     url = settings.orchestratorUrl + "/deployments/" + depid
     response = requests.delete(url, headers=headers)
-       
+
     if not response.ok:
         flash("Error deleting deployment: " + response.text)
-  
+
     return redirect(url_for('showdeployments', _external=True))
 
 
@@ -191,33 +191,41 @@ def depdel(depid=None):
 @authorized_with_valid_token
 def configure(selected_module):
 
-    access_token = iam_blueprint.session.token['access_token']
+    # Parse form
+    toscaname = request.args.get('toscaname', default='default')
+    hardware = request.args.get('hardware', default='cpu')
+    run = request.args.get('run', default='deepaas')
 
-    # selected_module = request.args['selected_module']
-    available_tosca_titles = list(modules[selected_module]['toscas'].keys())
-    try:
-        selected_tosca_title = request.args['selected_tosca_title']
-    except Exception:
-        selected_tosca_title = available_tosca_titles[0]
-    selected_tosca = modules[selected_module]['toscas'][selected_tosca_title]
-
-    # Container path needs to be updated if the default tosca has been selected
+    # Update TOSCA conf
+    selected_tosca = modules[selected_module]['toscas'][toscaname]
     tosca_info = toscaInfo[selected_tosca]
-    if selected_tosca in ['default-cpu.yml', 'default-gpu.yml']:
-        tosca_info = deepcopy(tosca_info)
-        tosca_info['inputs']['docker_image']['default'] = modules[selected_module]['sources']['docker_registry_repo'] + \
-                                                          tosca_info['inputs']['docker_image']['default']
+    try:
+        if selected_tosca == settings.default_tosca:
+            tosca_info = deepcopy(tosca_info)
+            tosca_info['inputs']['docker_image']['default'] = modules[selected_module]['sources']['docker_registry_repo']
+        tosca_info = utils.update_conf(conf=tosca_info, hardware=hardware, run=run)
+    except Exception as e:
+        print(e)
+        flash("""Error updating the parameters according to the blue box selection. This tosca template might have some
+        hardcoded options.""", 'warning')
+    app.logger.debug("Template: " + json.dumps(tosca_info))
+    form_conf = {'toscaname': {'selected': toscaname,
+                               'available': list(modules[selected_module]['toscas'].keys())},
+                 'hardware': {'selected': hardware,
+                              'available': ['CPU', 'GPU']},
+                 'run': {'selected': run,
+                         'available': ['DEEPaaS', 'JupyterLab']}
+                 }
 
+    # Getting slas
+    access_token = iam_blueprint.session.token['access_token']
     slas = sla.get_slas(access_token, settings.orchestratorConf['slam_url'], settings.orchestratorConf['cmdb_url'])
-
-    app.logger.debug("Template: " + json.dumps(toscaInfo[selected_tosca]))
 
     return render_template('createdep.html',
                            template=tosca_info,
                            selectedTemplate=selected_tosca,
                            selected_module=selected_module,
-                           selected_tosca_title=selected_tosca_title,
-                           available_tosca_titles=available_tosca_titles,
+                           form_conf=form_conf,
                            slas=slas)
 
 
@@ -244,14 +252,10 @@ def createdep():
     app.logger.debug("Form data: " + json.dumps(request.form.to_dict()))
 
     template = request.args.get('template')
-    if template in ['default-cpu.yml', 'default-gpu.yml']:  # this will not be needed if defaults were written back to disk
-        template = settings.default_tosca
-
     with io.open(os.path.join(settings.toscaDir, template)) as stream:
         template = yaml.full_load(stream)
 
         form_data = request.form.to_dict()
-
         params = {}
         if 'extra_opts.keepLastAttempt' in form_data:
             params['keepLastAttempt'] = 'true'
@@ -276,7 +280,7 @@ def createdep():
     if not response.ok:
         flash("Error submitting deployment: \n" + response.text)
 
-    return redirect(url_for('showdeployments', _external=True)) 
+    return redirect(url_for('showdeployments', _external=True))
 
 
 @app.route('/logout')

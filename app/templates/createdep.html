@@ -4,7 +4,7 @@
 
 <div class="container">
 
-    {% include 'flashed_messages.html' %}	
+    {% include 'flashed_messages.html' %}
 
     <br>
     <div class="card shadow mb-4">
@@ -20,17 +20,47 @@
 {#            </div>#}
 
             <div class="alert alert-info">
-            <strong>Selected template</strong>
-            <form action="{{ url_for('configure', selected_module=selected_module, selected_tosca_title=selected_tosca_title) }}">
-                <select name="selected_tosca_title" class="js-example-basic-single js-states form-control" onchange="this.form.submit()">
-                    {% for v in available_tosca_titles %}
-                        {% if v == selected_tosca_title  %}
-                            <option value="{{ v }}" selected>{{ v }}</option>
+            <form action="{{ url_for('configure', selected_module=selected_module) }}">
+
+                <div class="form-group">
+                <strong>Template</strong>
+                <select name="toscaname" class="js-example-basic-single js-states form-control" onchange="this.form.submit()">
+                    {% for v in form_conf["toscaname"]["available"] %}
+                        {% if v.lower() == form_conf["toscaname"]["selected"]  %}
+                            <option value="{{ v.lower() }}" selected>{{ v }}</option>
                         {% else %}
-                            <option value="{{ v }}">{{ v }}</option>
+                            <option value="{{ v.lower() }}">{{ v }}</option>
                         {% endif %}
                     {% endfor %}
                 </select>
+                </div>
+
+                <div class="form-group">
+                <strong>Hardware</strong>
+                <select name="hardware" class="js-example-basic-single js-states form-control" onchange="this.form.submit()">
+                    {% for v in form_conf["hardware"]["available"] %}
+                        {% if v.lower() == form_conf["hardware"]["selected"]  %}
+                            <option value="{{ v.lower() }}" selected>{{ v }}</option>
+                        {% else %}
+                            <option value="{{ v.lower() }}">{{ v }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                </div>
+
+                <div class="form-group">
+                <strong>Run</strong>
+                <select name="run" class="js-example-basic-single js-states form-control" onchange="this.form.submit()">
+                    {% for v in form_conf["run"]["available"] %}
+                        {% if v.lower() == form_conf["run"]["selected"]  %}
+                            <option value="{{ v.lower() }}" selected>{{ v }}</option>
+                        {% else %}
+                            <option value="{{ v.lower() }}">{{ v }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                </div>
+
             </form>
             </div>
 
