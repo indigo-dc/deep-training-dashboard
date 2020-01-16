@@ -31,7 +31,7 @@ def getOrchestratorVersion(orchestrator_url):
 
 
 def getOrchestratorConfiguration(orchestrator_url, access_token):
-    
+
     headers = {'Authorization': 'bearer {}'.format(access_token)}
     url = orchestrator_url + "/configuration"
     response = requests.get(url, headers=headers)
@@ -60,7 +60,7 @@ def extractToscaInfo(toscaDir, tosca_pars_dir, toscaTemplates, default_tosca):
     for tosca in toscaTemplates:
         with io.open(toscaDir + tosca) as stream:
             template = yaml.full_load(stream)
-    
+
             toscaInfo[tosca] = {
                                 "valid": True,
                                 "description": "TOSCA Template",
@@ -78,14 +78,14 @@ def extractToscaInfo(toscaDir, tosca_pars_dir, toscaTemplates, default_tosca):
             else:
                 if 'description' in template:
                     toscaInfo[tosca]["description"] = template['description']
-    
+
                 if 'metadata' in template and template['metadata'] is not None:
                     for k, v in template['metadata'].items():
                         toscaInfo[tosca]["metadata"][k] = v
-    
+
                 if 'inputs' in template['topology_template']:
                     toscaInfo[tosca]['inputs'] = template['topology_template']['inputs']
-    
+
                 # Add parameters code here
                 if tosca_pars_dir:
                     tosca_pars_path = tosca_pars_dir + "/"  # this has to be reassigned here because is local.
@@ -102,25 +102,32 @@ def extractToscaInfo(toscaDir, tosca_pars_dir, toscaTemplates, default_tosca):
                                         if "tabs" in pars_data:
                                             toscaInfo[tosca]['tabs'] = pars_data["tabs"]
 
-    # Create two new default TOSCA templates for cpu and gpu
-    for infra in ['cpu', 'gpu']:
-        name = 'default-{}.yml'.format(infra)
-        info = deepcopy(toscaInfo[default_tosca])
-
-        info['inputs']['docker_image']['default'] = ':{}'.format(infra)
-
-        if infra == 'cpu':
-            info['inputs']['num_cpus']['default'] = 1
-            info['inputs']['num_gpus']['default'] = 0
-
-        elif infra == 'gpu':
-            info['inputs']['num_cpus']['default'] = 1
-            info['inputs']['num_gpus']['default'] = 1
-            info['inputs']['run_command']['default'] += ' --listen-port=$PORT0'
-
-        toscaInfo[name] = info
-
     return toscaInfo
+
+
+def update_conf(conf, hardware='cpu', run='deepaas'):
+
+    if hardware == 'cpu':
+        conf['inputs']['num_cpus']['default'] = 1
+        conf['inputs']['num_gpus']['default'] = 0
+        conf['inputs']['docker_image']['default'] += ':cpu'
+
+    elif hardware == 'gpu':
+        conf['inputs']['num_cpus']['default'] = 1
+        conf['inputs']['num_gpus']['default'] = 1
+        conf['inputs']['docker_image']['default'] += ':gpu'
+
+    if run == 'deepaas':
+        conf['inputs']['run_command']['default'] = 'deepaas-run --listen-ip=0.0.0.0'
+        if hardware == 'gpu':
+            conf['inputs']['run_command']['default'] += ' --listen-port=$PORT0'
+
+    elif run == 'jupyterlab':
+        conf['inputs']['run_command']['default'] = '/srv/.jupyter/run_jupyter.sh --allow-root'
+        if hardware == 'gpu':
+            conf['inputs']['run_command']['default'] = "jupyterPORT=$PORT2 " + conf['inputs']['run_command']['default']
+
+    return conf
 
 
 def get_modules(tosca_templates, default_tosca, tosca_dir):
@@ -172,9 +179,8 @@ def get_modules(tosca_templates, default_tosca, tosca_dir):
             except Exception as e:
                 print('Error processing TOSCA in module {}'.format(module_name))
 
-        # Add the two default TOSCAs for CPU and GPU
-        toscas['default-cpu'] = 'default-cpu.yml'
-        toscas['default-gpu'] = 'default-gpu.yml'
+        # Add always default tosca
+        toscas['default'] = default_tosca
 
         # Build the module dict
         modules[module_name] = {'toscas': toscas,
