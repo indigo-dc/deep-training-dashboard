@@ -219,7 +219,14 @@ def configure(selected_module):
 
     # Getting slas
     access_token = iam_blueprint.session.token['access_token']
-    slas = sla.get_slas(access_token, settings.orchestratorConf['slam_url'], settings.orchestratorConf['cmdb_url'])
+    try:
+        slas = sla.get_slas(access_token, settings.orchestratorConf['slam_url'], settings.orchestratorConf['cmdb_url'])
+    except Exception as e:
+        print(e)
+        flash("Error retrieving the infrastructure provider's list. You probably won't be able to create "
+              "your request correctly. Please report the problem to {}.".format(app.config.get('SUPPORT_EMAIL')),
+              category='error')
+        slas = None
 
     return render_template('createdep.html',
                            template=tosca_info,

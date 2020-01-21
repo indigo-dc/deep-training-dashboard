@@ -3,7 +3,7 @@
 {% block content %}
 
 <div class="container-fluid">
-{% include 'flashed_messages.html' %}	
+{% include 'flashed_messages.html' %}
   <br>
 
     <div class="card shadow mb-4">
@@ -18,8 +18,8 @@
         </div>
 	<div class="card-body">
           <div class="alert alert-danger">
-              Sorry, something went wrong..Please, try again. 
-	      Contact the support {%if support_email %}({{ support_email }}){%endif %} if the error persists.
+              Sorry, something went wrong. Please, try again.
+              Contact the support {%if support_email %}({{ support_email }}){%endif %} if the error persists.
           </div>
   	</div>
     </div>
