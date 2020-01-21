@@ -65,5 +65,5 @@
   {% else %}
     <input {% if 'password' in key %}type="password"{% else %}type="text"{% endif %} class="form-control" id="{{key}}" name="{{key}}" value="{{value.default}}" aria-describedby="help{{key}}" {% if value.required %}required{%endif%} />
   {% endif %}  <!-- end tag type existence if -->
-  <span id="help{{key}}" class="help-block">{{value.description}}</span>
+  <small id="help{{key}}" class="form-text text-muted">{{value.description}}</small>
 </div>
