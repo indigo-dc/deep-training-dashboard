@@ -8,7 +8,7 @@
     "CMDB_URL": "http://paas.cloud.cnaf.infn.it/cmdb",
     "IM_URL": "https://paas-xdc.cloud.cnaf.infn.it:8800",
 
-    "TOSCA_TEMPLATES_DIR": "../tosca-templates/deep-oc",
+    "TOSCA_TEMPLATES_DIR": "/opt/tosca-templates/deep-oc",
     "DEFAULT_TOSCA_NAME": "deep-oc-mesos-webdav.yml",
     "MODULES_YML": "https://raw.githubusercontent.com/deephdc/deep-oc/master/MODULES.yml",
 

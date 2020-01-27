@@ -158,12 +158,24 @@ with the option `-e WORKERS=2` Check the
 [documentation](http://docs.gunicorn.org/en/stable/design.html#how-many-workers)
 for ideas on tuning this parameter.
 
-## How to build the docker image
+## How to build and run the docker image
 
 ```bash
 git clone https://github.com/indigo-dc/orchestrator-dashboard.git
 cd orchestrator-dashboard
 docker build -f docker/Dockerfile -t orchestrator-dashboard .
+```
+
+To run the created image you have to export the `config.json` file (with your credentials) inside
+the docker container:
+```bash
+docker run -d -p 5001:5001 -v $PWD/config.json:/app/app/config.json orchestrator-dashboard
+```
+
+The dashboard will be accessible at http://0.0.0.0:5001 .
+You can also choose to run image hosted on DockerHub:
+```bash
+docker run -d -p 5001:5001 -v $PWD/config.json:/app/app/config.json indigodatacloud/deep-training-dashboard
 ```
 
 ## How to setup a development environment
