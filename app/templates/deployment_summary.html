@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<div class="container-fluid">
+{% include 'flashed_messages.html' %}
+  <br>
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+          <div class="row">
+            <div class="col-md-6">
+              <!-- Title -->
+              <h4 class="font-weight-bold text-primary">{{ deployment.uuid }}</h4>
+            </div>
+          </div> <!-- / .row -->
+        </div>
+        <div class="card-body">
+
+           {% for model, info in training_info.items() %}
+
+           <h1> {{ model }}
+           <div class="btn-group mx-auto">
+             <a class="btn btn-info rounded mx-1 my-3 p-2" href="{{ deployment.outputs['deepaas_endpoint'] + '/ui#/models/post_v2_models_{}_train_'.format(model) }}">
+             Train model
+             </a>
+             <a class="btn btn-secondary rounded mx-1 my-3 p-2" href="{{ deployment.outputs['deepaas_endpoint'] + '/ui#/models/post_v2_models_{}_predict_'.format(model) }}">
+             Predict
+             </a>
+           </div>
+           </h1>
+
+            <div class="table-responsive">
+            <table class="table table-striped table-hover">
+            <caption>Training history</caption>
+            <!--Table head-->
+              <thead class="thead-dark">
+                <tr>
+                  <th>Training uuid</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Message</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for element in info %}
+                <tr>
+                  <td>{{ element.uuid }}</td>
+                  <td>{{ element.date }}</td>
+                  <td><h5>
+                    {% if element.status == 'done' %}
+                    <span class="badge badge-success"/>
+                    {% elif element.status == 'error' %}
+                    <span class="badge badge-danger"/>
+                    {% else  %}
+                    <span class="badge badge-primary"/>
+                    {% endif %}
+                    {{ element.status }}
+                    </span>
+                  </h5></td>
+                  <td>{{ element.message }}</td>
+                  <td>
+                  <a class="btn btn-outline-danger rounded" href="{{ url_for('delete_training', training_uuid=element.uuid, model=model, deployment=deployment) }}">
+                      <span class="fas fa-trash-alt mr-2"></span>Delete
+                  </a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            </div>
+
+            {% endfor %}
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

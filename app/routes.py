@@ -1,3 +1,4 @@
+import ast
 import io
 import os
 import yaml
@@ -119,9 +120,7 @@ def home():
         return render_template('portfolio.html', templates=modules)
 
 
-@app.route('/deployments')
-@authorized_with_valid_token
-def showdeployments():
+def get_deployments():
 
     access_token = iam_blueprint.session.token['access_token']
     headers = {'Authorization': 'bearer {}'.format(access_token)}
@@ -131,10 +130,57 @@ def showdeployments():
     deployments = {}
     if not response.ok:
         flash("Error retrieving deployment list: \n" + response.text, 'warning')
+        return render_template('deployments.html', deployments=deployments)
     else:
         deployments = response.json()["content"]
         app.logger.debug("Deployments: " + str(deployments))
+        return deployments
+
+
+@app.route('/deployments')
+@authorized_with_valid_token
+def showdeployments():
+    deployments= get_deployments()
     return render_template('deployments.html', deployments=deployments)
+
+
+@app.route("/deployments/<uuid>")
+@authorized_with_valid_token
+def deployment_summary(uuid):
+    deployments = get_deployments()
+    deployment = next((d for d in deployments if d['uuid'] == uuid), None)
+    if deployment is None:
+        flash('This id matches no deployment')
+        return redirect(url_for('showdeployments', _external=True))
+
+    # Check if deployment has DEEPaaS V2
+    deepaas_url = deployment['outputs']['deepaas_endpoint']
+    try:
+        versions = requests.get(deepaas_url).json()['versions']
+        if 'v2' not in [v['id'] for v in versions]:
+            raise Exception
+    except Exception as e:
+        flash('You need to be running DEEPaaS V2 to access to the training history')
+        return redirect(url_for('showdeployments', _external=True))
+
+    # Get info
+    r = requests.get(deepaas_url + '/v2/models').json()
+    training_info = {}
+    for model in r['models']:
+        r = requests.get('{}/v2/models/{}/train/'.format(deepaas_url, model['id']))
+        training_info[model['id']] = r.json()
+
+    return render_template('deployment_summary.html', deployment=deployment, training_info=training_info)
+
+
+@app.route('/delete_training/<training_uuid>')
+@authorized_with_valid_token
+def delete_training(training_uuid):
+    model = request.args.get('model')
+    deployment = request.args.get('deployment')
+    deployment = ast.literal_eval(deployment)
+    requests.delete(deployment['outputs']['deepaas_endpoint'] + '/v2/models/{}/train/{}'.format(model, training_uuid))
+    return redirect(url_for('deployment_summary', uuid=deployment['uuid'], _external=True))
 
 
 @app.route('/template/<depid>')
