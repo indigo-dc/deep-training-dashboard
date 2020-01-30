@@ -51,9 +51,28 @@ def authorized_with_valid_token(f):
     def decorated_function(*args, **kwargs):
 
         if not iam_blueprint.session.authorized or 'username' not in session:
-            return redirect(url_for('login', _external=True))
+            account_info = iam_blueprint.session.get("/userinfo")
+            if account_info.ok:
+                account_info_json = account_info.json()
 
-        if iam_blueprint.session.token['expires_in'] < 20:
+                if settings.iamGroups:
+                    user_groups = account_info_json['groups']
+                    if not set(settings.iamGroups).issubset(user_groups):
+                        app.logger.debug(
+                            "No match on group membership. User group membership: " + json.dumps(user_groups))
+                        message = Markup('''
+                        You need to be a member of the following IAM groups: {0}. <br>
+                        Please, visit <a href="{1}">{1}</a> and apply for the requested membership.
+                        '''.format(json.dumps(settings.iamGroups), settings.iamUrl))
+                        raise Forbidden(description=message)
+
+                session['username'] = account_info_json['name']
+                session['gravatar'] = utils.avatar(account_info_json['email'], 26)
+                session['organisation_name'] = account_info_json['organisation_name']
+            else:
+                return redirect(url_for('login', next=url_for(f.__name__, **kwargs), _external=True))
+
+        elif iam_blueprint.session.token['expires_in'] < 20:
             app.logger.debug("Force refresh token")
             iam_blueprint.session.get('/userinfo')
 
@@ -76,6 +95,7 @@ def show_settings():
 @app.route('/login')
 def login():
     session.clear()
+    session['next_url'] = request.args.get('next')
     return render_template('home.html')
 
 
@@ -94,30 +114,14 @@ def getslas():
 
 
 @app.route('/')
+@authorized_with_valid_token
 def home():
-    if not iam_blueprint.session.authorized:
-        return redirect(url_for('login', _external=True))
+    if session.get('next_url'):
+        next_url = session.get('next_url')
+        session.pop('next_url', None)
+        return redirect(next_url)
 
-    account_info = iam_blueprint.session.get("/userinfo")
-
-    if account_info.ok:
-        account_info_json = account_info.json()
-
-        if settings.iamGroups:
-            user_groups = account_info_json['groups']
-            if not set(settings.iamGroups).issubset(user_groups):
-                app.logger.debug("No match on group membership. User group membership: " + json.dumps(user_groups))
-                message = Markup('''
-                You need to be a member of the following IAM groups: {0}. <br>
-                Please, visit <a href="{1}">{1}</a> and apply for the requested membership.
-                '''.format(json.dumps(settings.iamGroups), settings.iamUrl))
-                raise Forbidden(description=message)
-
-        session['username'] = account_info_json['name']
-        session['gravatar'] = utils.avatar(account_info_json['email'], 26)
-        session['organisation_name'] = account_info_json['organisation_name']
-
-        return render_template('portfolio.html', templates=modules)
+    return render_template('portfolio.html', templates=modules)
 
 
 def get_deployments():
