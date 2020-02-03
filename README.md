@@ -41,7 +41,7 @@ The docker image uses [Gunicorn](https://gunicorn.org/) as WSGI HTTP server to s
         "ORCHESTRATOR_URL": "https://paas.cloud.cnaf.infn.it/orchestrator",
         "SLAM_URL": "https://paas.cloud.cnaf.infn.it:8443",
         "CMDB_URL": "http://paas-tools.cloud.cnaf.infn.it:7777/cmdb",
-        "IM_URL": "https://paas-xdc.cloud.cnaf.infn.it:8800",
+        "IM_URL": "https://paas.cloud.cnaf.infn.it/im",
     
         "TOSCA_TEMPLATES_DIR": "../tosca-templates/deep-oc",
         "DEFAULT_TOSCA_NAME": "deep-oc-mesos-webdav.yml",

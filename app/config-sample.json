@@ -6,7 +6,7 @@
     "ORCHESTRATOR_URL": "https://paas.cloud.cnaf.infn.it/orchestrator",
     "SLAM_URL": "https://paas.cloud.cnaf.infn.it:8443",
     "CMDB_URL": "http://paas.cloud.cnaf.infn.it/cmdb",
-    "IM_URL": "https://paas-xdc.cloud.cnaf.infn.it:8800",
+    "IM_URL": "https://paas.cloud.cnaf.infn.it/im",
 
     "TOSCA_TEMPLATES_DIR": "/opt/tosca-templates/deep-oc",
     "DEFAULT_TOSCA_NAME": "deep-oc-mesos-webdav.yml",
