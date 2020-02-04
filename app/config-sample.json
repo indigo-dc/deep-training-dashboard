@@ -9,7 +9,7 @@
     "IM_URL": "https://paas.cloud.cnaf.infn.it/im",
 
     "TOSCA_TEMPLATES_DIR": "/opt/tosca-templates/deep-oc",
-    "DEFAULT_TOSCA_NAME": "deep-oc-mesos-webdav.yml",
+    "DEFAULT_TOSCA_NAME": "deep-oc-marathon-webdav.yml",
     "MODULES_YML": "https://raw.githubusercontent.com/deephdc/deep-oc/master/MODULES.yml",
 
     "SUPPORT_EMAIL": "deep-support@listas.csic.es",

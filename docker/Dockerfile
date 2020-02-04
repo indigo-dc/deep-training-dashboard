@@ -3,7 +3,7 @@ FROM python:3.7
 COPY . /app
 
 WORKDIR /opt
-RUN git clone -b v4.0.0 https://github.com/indigo-dc/tosca-templates
+RUN git clone https://github.com/indigo-dc/tosca-templates
 
 WORKDIR /app/
 ENV PYTHONPATH=/app

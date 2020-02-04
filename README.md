@@ -28,7 +28,7 @@ The docker image uses [Gunicorn](https://gunicorn.org/) as WSGI HTTP server to s
     
 2) Clone the tosca-templates repository to get a set of tosca templates that the dashboard will load, e.g.:
 
-    ```git clone https://github.com/indigo-dc/tosca-templates -b stable/v3.0```
+    ```git clone https://github.com/indigo-dc/tosca-templates```
 
 3) Create a `config.json` file in `/app` (see the [example](app/config-sample.json)) an replace the values with your `IAM_CLIENT_ID`, `IAM_CLIENT_SECRET` and `TOSCA_TEMPLATES_DIR`:
 
@@ -40,11 +40,11 @@ The docker image uses [Gunicorn](https://gunicorn.org/) as WSGI HTTP server to s
     
         "ORCHESTRATOR_URL": "https://paas.cloud.cnaf.infn.it/orchestrator",
         "SLAM_URL": "https://paas.cloud.cnaf.infn.it:8443",
-        "CMDB_URL": "http://paas-tools.cloud.cnaf.infn.it:7777/cmdb",
+        "CMDB_URL": "http://paas.cloud.cnaf.infn.it/cmdb",
         "IM_URL": "https://paas.cloud.cnaf.infn.it/im",
     
         "TOSCA_TEMPLATES_DIR": "../tosca-templates/deep-oc",
-        "DEFAULT_TOSCA_NAME": "deep-oc-mesos-webdav.yml",
+        "DEFAULT_TOSCA_NAME": "deep-oc-marathon-webdav.yml",
         "MODULES_YML": "https://raw.githubusercontent.com/deephdc/deep-oc/master/MODULES.yml",
     
         "SUPPORT_EMAIL": "deep-support@listas.csic.es",
