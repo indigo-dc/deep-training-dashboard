@@ -157,6 +157,11 @@ def deployment_summary(uuid):
         flash('This id matches no deployment')
         return redirect(url_for('showdeployments', _external=True))
 
+    # Check if deployment is still in 'create_in_progress'
+    if not 'deepaas_endpoint' in deployment['outputs']:
+        flash('Wait until creation is completed before you access the training history.')
+        return redirect(url_for('showdeployments', _external=True))
+
     # Check if deployment has DEEPaaS V2
     deepaas_url = deployment['outputs']['deepaas_endpoint']
     try:
