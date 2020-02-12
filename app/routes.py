@@ -294,13 +294,13 @@ def configure(selected_module):
 def add_sla_to_template(template, sla_id):
     # Add the placement policy
 
-    if version.parse(utils.getOrchestratorVersion(settings.orchestratorUrl)) >= version.parse("2.2.0-SNAPSHOT"):
+    if version.parse(utils.getOrchestratorVersion(settings.orchestratorUrl).split('-')[0]) >= version.parse("2.2.0"):
         toscaSlaPlacementType = "tosca.policies.indigo.SlaPlacement"
     else:
         toscaSlaPlacementType = "tosca.policies.Placement"
 
     template['topology_template']['policies'] = [
-           {"deploy_on_specific_site": {"type": toscaSlaPlacementType, "properties": {"sla_id": sla_id}}}]
+           {"deploy_on_specific_site": { "type": toscaSlaPlacementType, "properties": {"sla_id": sla_id}}}]
 
     app.logger.debug(yaml.dump(template, default_flow_style=False))
 
@@ -333,11 +333,12 @@ def createdep():
 
         payload = {"template": yaml.dump(template, default_flow_style=False, sort_keys=False),
                    "parameters": inputs}
+        payload.update(params)
 
     access_token = iam_blueprint.session.token['access_token']
     headers = {'Content-Type': 'application/json', 'Authorization': 'bearer {}'.format(access_token)}
     url = settings.orchestratorUrl + "/deployments/"
-    response = requests.post(url, json=payload, params=params, headers=headers)
+    response = requests.post(url, json=payload, headers=headers)
 
     if not response.ok:
         flash("Error submitting deployment: \n" + response.text)
