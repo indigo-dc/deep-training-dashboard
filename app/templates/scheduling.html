@@ -13,12 +13,16 @@
 {% if slas != None %}
 <div id="manschedConf" class="form-group">
   <p></p>
-  <label>Select a provider:</label>
+  <label>Select a provider</label>
   <select class="js-example-basic-single js-states form-control" id="selectSLA" name="extra_opts.selectedSLA">
   {% for sla in slas %}
       <option name="selectedSLA" value={{sla.id}}>{{sla.sitename}}: {{sla.service_type}}</option>
   {% endfor %}
   </select>
+  <small class="form-text text-muted">
+    Use providers with <b>marathon</b> enabled (ie. XXX: YYY.marathon). If you want to use GPUs with your deployments
+    you should also select providers with <b>gpu_support: True</b>.
+  </small>
 </div>
 {% endif %}
 
