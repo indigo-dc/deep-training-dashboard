@@ -5,7 +5,6 @@ import json
 from collections import OrderedDict
 from fnmatch import fnmatch
 from hashlib import md5
-from copy import deepcopy
 
 import urllib.request
 import requests
@@ -123,7 +122,7 @@ def update_conf(conf, hardware='cpu', run='deepaas'):
             conf['inputs']['run_command']['default'] += ' --listen-port=$PORT0'
 
     elif run == 'jupyterlab':
-        conf['inputs']['run_command']['default'] = '/srv/.jupyter/run_jupyter.sh --allow-root'
+        conf['inputs']['run_command']['default'] = '/srv/.jupyter/run_jupyter.sh --allow-root --NotebookApp.token=$jupyterPASSWORD'
         if hardware == 'gpu':
             conf['inputs']['run_command']['default'] = "jupyterPORT=$PORT2 " + conf['inputs']['run_command']['default']
 
