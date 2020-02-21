@@ -1,3 +1,5 @@
+import warnings
+
 from app import app
 
 
@@ -6,6 +8,10 @@ toscaParamsDir = app.config.get('TOSCA_PARAMETERS_DIR')
 default_tosca = app.config['DEFAULT_TOSCA_NAME']
 modules_yml = app.config['MODULES_YML']
 iamUrl = app.config['IAM_BASE_URL']
+github_secret = app.config['GITHUB_SECRET'].encode('utf-8')
+if not github_secret:
+    warnings.warn('Github secret is empty so reload requests to the Dashboard (to update Toscas and modules) are '
+                  'not authenticated.')
 
 orchestratorUrl = app.config['ORCHESTRATOR_URL']
 orchestratorConf = {

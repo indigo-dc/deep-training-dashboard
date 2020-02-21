@@ -1,33 +1,24 @@
 import ast
-import io
-import os
-import yaml
-import json
-from functools import wraps
-from packaging import version
 from copy import deepcopy
+from functools import wraps
+import hashlib
+import hmac
+import io
+import json
+import os
+from packaging import version
+import subprocess
 
 import requests
-from werkzeug.exceptions import Forbidden
 from flask import json, render_template, request, redirect, url_for, flash, session, Markup
+import yaml
+from werkzeug.exceptions import Forbidden
 
 from app import app, iam_blueprint, sla, settings, utils
 
 
 app.jinja_env.filters['tojson_pretty'] = utils.to_pretty_json
 
-toscaTemplates = utils.loadToscaTemplates(settings.toscaDir)
-toscaInfo = utils.extractToscaInfo(toscaDir=settings.toscaDir,
-                                   tosca_pars_dir=settings.toscaParamsDir,
-                                   toscaTemplates=toscaTemplates,
-                                   default_tosca=settings.default_tosca)
-
-modules = utils.get_modules(tosca_templates=toscaTemplates,
-                            default_tosca=settings.default_tosca,
-                            tosca_dir=settings.toscaDir)
-toscaTemplates = utils.loadToscaTemplates(settings.toscaDir)  # load again as we might have downloaded a new TOSCA during the get_modules
-
-app.logger.debug("TOSCA INFO: {}".format(toscaInfo))
 app.logger.debug("EXTERNAL_LINKS: {}".format(settings.external_links))
 app.logger.debug("ENABLE_ADVANCED_MENU: {}".format(settings.enable_advanced_menu))
 
@@ -351,3 +342,49 @@ def logout():
     session.clear()
     iam_blueprint.session.get("/logout")
     return redirect(url_for('login', _external=True))
+
+
+@app.route('/reload', methods=['POST'])
+def load_files(verify=True):
+    """This function is used to refresh the TOSCA templates and the mapping between modules and TOSCA templates.
+    A webhook is set up so that when any of the repos [1][2] is updated, Github will POST to this method to refresh
+    the Dashboard. The webhook's secret has to be the same has GITHUB_SECRET in the conf so that we can validate that
+    the payload comes indeed from Github and the webhook has to be configured to deliver an 'application/json'.
+
+    [1] https://github.com/deephdc/deep-oc
+    [2] https://github.com/indigo-dc/tosca-templates/tree/master/deep-oc
+    [3] https://gist.github.com/categulario/deeb41c402c800d1f6e6#file-compare_digest-py
+    """
+    global toscaTemplates, toscaInfo, modules
+
+    # Check request comes indeed from Github
+    if verify and settings.github_secret:
+        if 'X-Hub-Signature' not in request.headers:
+            return 'Refresh petitions must be signed from Github.'
+        signature = hmac.new(settings.github_secret, request.data, hashlib.sha1).hexdigest()
+        if not hmac.compare_digest(signature, request.headers['X-Hub-Signature'].split('=')[1]):
+            return 'Failed to verify the signature!'
+
+    print('Loading modules and TOSCA templates ...')
+
+    # Update TOSCA folder
+    subprocess.call(['git', 'pull'], cwd=settings.toscaDir)
+
+    # Reload the variables
+    toscaTemplates = utils.loadToscaTemplates(settings.toscaDir)
+    toscaInfo = utils.extractToscaInfo(toscaDir=settings.toscaDir,
+                                       tosca_pars_dir=settings.toscaParamsDir,
+                                       toscaTemplates=toscaTemplates,
+                                       default_tosca=settings.default_tosca)
+
+    modules = utils.get_modules(tosca_templates=toscaTemplates,
+                                default_tosca=settings.default_tosca,
+                                tosca_dir=settings.toscaDir)
+    toscaTemplates = utils.loadToscaTemplates(
+        settings.toscaDir)  # load again as we might have downloaded a new TOSCA during the get_modules
+
+    app.logger.debug("TOSCA INFO: {}".format(toscaInfo))
+    return 'refreshed'
+
+
+load_files(verify=False)

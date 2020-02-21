@@ -30,7 +30,10 @@ The docker image uses [Gunicorn](https://gunicorn.org/) as WSGI HTTP server to s
 
     ```git clone https://github.com/indigo-dc/tosca-templates```
 
-3) Create a `config.json` file in `/app` (see the [example](app/config-sample.json)) an replace the values with your `IAM_CLIENT_ID`, `IAM_CLIENT_SECRET` and `TOSCA_TEMPLATES_DIR`:
+3) Create a `config.json` file in `/app` (see the [example](app/config-sample.json)) an replace the values with your
+ `IAM_CLIENT_ID`, `IAM_CLIENT_SECRET` and `TOSCA_TEMPLATES_DIR`. If you want that the reload requests (to update Tocas
+ and modules list) from Github to be authenticated (so to ensure that they only come from your Github webhooks) you
+ have to set `GITHUB_SECRET` to be the same as Github's webhook secret (see "Keeping the Dashboard updated" below).
 
     ```json
     {
@@ -46,6 +49,7 @@ The docker image uses [Gunicorn](https://gunicorn.org/) as WSGI HTTP server to s
         "TOSCA_TEMPLATES_DIR": "../tosca-templates/deep-oc",
         "DEFAULT_TOSCA_NAME": "deep-oc-marathon-webdav.yml",
         "MODULES_YML": "https://raw.githubusercontent.com/deephdc/deep-oc/master/MODULES.yml",
+        "GITHUB_SECRET": "",
     
         "SUPPORT_EMAIL": "deep-support@listas.csic.es",
     
@@ -149,6 +153,24 @@ docker run -d -p 5001:5001 --name='orchestrator-dashboard' \
 > :warning: Remember to update the redirect uri in the IAM client to `https://<PROXY_HOST>/login/iam/authorized`
 
 Access the dashboard at `https://<PROXY_HOST>/`
+
+### Keeping the Dashboard updated
+
+If you want the Dashboard to keep updated with the changes in the TOSCA repos or the modules list you will have 
+to configure a [Github webhook](https://developer.github.com/webhooks/creating/) in those repos (for example [1] and [2])
+so that any pushes in those repos trigger an update in the Dashboard.
+
+The webhooks have to be configured as following:
+* Payload URL: `<dashboard_url>/reload`
+* Content type: `application/json`
+* Secret: Has to be the same as `GITHUB_SECRET` in the config.
+* Enable SSL is you are running over HTTPS and have valid certificates.
+* Just the `push` events.
+* Mark as Active.
+
+Repo examples:
+1. https://github.com/indigo-dc/tosca-templates
+2. https://github.com/deephdc/deep-oc
 
 ### Performance tuning
 
