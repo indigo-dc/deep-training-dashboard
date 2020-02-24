@@ -174,7 +174,7 @@ def get_modules(tosca_templates, default_tosca, tosca_dir):
                     continue
                 if tosca_name not in tosca_templates:
                     urllib.request.urlretrieve(t['url'], os.path.join(tosca_dir, tosca_name))
-                toscas[t['title']] = tosca_name
+                toscas[t['title'].lower()] = tosca_name
             except Exception as e:
                 print('Error processing TOSCA in module {}'.format(module_name))
 
