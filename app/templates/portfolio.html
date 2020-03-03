@@ -26,9 +26,11 @@
                 <a class="btn btn-outline-dark rounded mx-1 my-3 p-2" href="{{ url_for('configure', selected_module=modulename) }}">
                 Train module
                 </a>
-                <a class="btn btn-outline-info rounded mx-1 my-3 p-2" href="https://marketplace.deep-hybrid-datacloud.eu/modules/{{ modulename }}.html">
-                Marketplace
-                </a>
+                {% if modulename != 'external' %}
+                  <a class="btn btn-outline-info rounded mx-1 my-3 p-2" href="https://marketplace.deep-hybrid-datacloud.eu/modules/{{ modulename }}.html">
+                  Marketplace
+                  </a>
+                {% endif %}
             </div>
         </div>
 
