@@ -1,13 +1,14 @@
+from collections import OrderedDict
+from hashlib import md5
 import io
+import json
+from fnmatch import fnmatch
 import os
 import yaml
-import json
-from collections import OrderedDict
-from fnmatch import fnmatch
-from hashlib import md5
 
-import urllib.request
+from flask import flash
 import requests
+import urllib.request
 
 from app import settings
 
@@ -106,25 +107,28 @@ def extractToscaInfo(toscaDir, tosca_pars_dir, toscaTemplates, default_tosca):
 
 def update_conf(conf, hardware='cpu', run='deepaas'):
 
-    if hardware == 'cpu':
-        conf['inputs']['num_cpus']['default'] = 1
-        conf['inputs']['num_gpus']['default'] = 0
-        conf['inputs']['docker_image']['default'] += ':cpu'
-
-    elif hardware == 'gpu':
-        conf['inputs']['num_cpus']['default'] = 1
-        conf['inputs']['num_gpus']['default'] = 1
-        conf['inputs']['docker_image']['default'] += ':gpu'
-
     if run == 'deepaas':
         conf['inputs']['run_command']['default'] = 'deepaas-run --listen-ip=0.0.0.0'
         if hardware == 'gpu':
             conf['inputs']['run_command']['default'] += ' --listen-port=$PORT0'
 
     elif run == 'jupyterlab':
+        flash('Remember to set a Jupyter password (mandatory).')
         conf['inputs']['run_command']['default'] = '/srv/.jupyter/run_jupyter.sh --allow-root'
         if hardware == 'gpu':
             conf['inputs']['run_command']['default'] = "jupyterPORT=$PORT2 " + conf['inputs']['run_command']['default']
+
+    if hardware == 'cpu':
+        conf['inputs']['num_cpus']['default'] = 1
+        conf['inputs']['num_gpus']['default'] = 0
+        conf['inputs']['docker_image']['default'] += ':cpu'
+        conf['inputs']['run_command']['default'] = "monitorPORT=6006 " + conf['inputs']['run_command']['default']
+
+    elif hardware == 'gpu':
+        conf['inputs']['num_cpus']['default'] = 1
+        conf['inputs']['num_gpus']['default'] = 1
+        conf['inputs']['docker_image']['default'] += ':gpu'
+        conf['inputs']['run_command']['default'] = "monitorPORT=$PORT1 " + conf['inputs']['run_command']['default']
 
     return conf
 
