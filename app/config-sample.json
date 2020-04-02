@@ -8,7 +8,7 @@
     "CMDB_URL": "http://paas.cloud.cnaf.infn.it/cmdb",
     "IM_URL": "https://paas.cloud.cnaf.infn.it/im",
 
-    "TOSCA_TEMPLATES_DIR": "/opt/tosca-templates/deep-oc",
+    "TOSCA_TEMPLATES_DIR": "../tosca-templates/deep-oc",
     "DEFAULT_TOSCA_NAME": "deep-oc-marathon-webdav.yml",
     "MODULES_YML": "https://raw.githubusercontent.com/deephdc/deep-oc/master/MODULES.yml",
     "GITHUB_SECRET": "",
@@ -27,10 +27,6 @@
         {
             "url": "https://deep-hybrid-datacloud.eu",
             "menu_item_name": "DEEP-Hybrid-DataCloud project page"
-        },
-        {
-            "url": "https://indigo-paas.cloud.ba.infn.it/status-page",
-            "menu_item_name": "Service status"
         }
     ],
 

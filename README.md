@@ -14,7 +14,7 @@
 - Delete deployment
 - Create new deployment
 
-The orchestrator-dashboard is a Python application built with the [Flask](http://flask.pocoo.org/) microframework; [Flask-Dance](https://flask-dance.readthedocs.io/en/latest/) is used for Openid-Connect/OAuth2 integration.
+The deep-training-dashboard is a Python application built with the [Flask](http://flask.pocoo.org/) microframework; [Flask-Dance](https://flask-dance.readthedocs.io/en/latest/) is used for Openid-Connect/OAuth2 integration.
 
 The docker image uses [Gunicorn](https://gunicorn.org/) as WSGI HTTP server to serve the Flask Application.
 
@@ -33,7 +33,7 @@ The docker image uses [Gunicorn](https://gunicorn.org/) as WSGI HTTP server to s
 3) Create a `config.json` file in `/app` (see the [example](app/config-sample.json)) an replace the values with your
  `IAM_CLIENT_ID`, `IAM_CLIENT_SECRET` and `TOSCA_TEMPLATES_DIR`. If you want that the reload requests (to update Tocas
  and modules list) from Github to be authenticated (so to ensure that they only come from your Github webhooks) you
- have to set `GITHUB_SECRET` to be the same as Github's webhook secret (see "Keeping the Dashboard updated" below).
+ have to set `GITHUB_SECRET` to be the same as Github's webhook secret (see "[Keeping the Dashboard updated](#keeping-the-dashboard-updated)" below).
 
     ```json
     {
@@ -65,10 +65,6 @@ The docker image uses [Gunicorn](https://gunicorn.org/) as WSGI HTTP server to s
             {
                 "url": "https://deep-hybrid-datacloud.eu",
                 "menu_item_name": "DEEP-Hybrid-DataCloud project page"
-            },
-            {
-                "url": "https://indigo-paas.cloud.ba.infn.it/status-page",
-                "menu_item_name": "Service status"
             }
         ],
     
@@ -79,7 +75,7 @@ The docker image uses [Gunicorn](https://gunicorn.org/) as WSGI HTTP server to s
     
 4) Enable HTTPS
 
-    You need to run the Orchestrator dashboard on HTTPS (otherwise you will get an error); you can choose between
+    You need to run the deep-training-dashboard on HTTPS (otherwise you will get an error); you can choose between
     - enabling the HTTPS support
     - using an HTTPS proxy
     
@@ -94,7 +90,7 @@ You would need to provide
 
 Run the docker container:
 ```bash
-docker run -d -p 443:5001 --name='orchestrator-dashboard' \
+docker run -d -p 443:5001 --name='deep-training-dashboard' \
            -e ENABLE_HTTPS=True \
            -v $PWD/cert.pem:/certs/cert.pem \
            -v $PWD/key.pem:/certs/key.pem \
@@ -144,10 +140,10 @@ server {
 Run the docker container:
 
 ```bash
-docker run -d -p 5001:5001 --name='orchestrator-dashboard' \
+docker run -d -p 5001:5001 --name='deep-training-dashboard' \
            -v $PWD/config.json:/app/app/config.json \
            -v $PWD/tosca-templates:/opt/tosca-templates \
-           indigodatacloud/orchestrator-dashboard:latest
+           indigodatacloud/deep-training-dashboard:latest
 ```
 
 > :warning: Remember to update the redirect uri in the IAM client to `https://<PROXY_HOST>/login/iam/authorized`
@@ -183,15 +179,15 @@ for ideas on tuning this parameter.
 ## How to build and run the docker image
 
 ```bash
-git clone https://github.com/indigo-dc/orchestrator-dashboard.git
-cd orchestrator-dashboard
-docker build -f docker/Dockerfile -t orchestrator-dashboard .
+git clone https://github.com/indigo-dc/deep-training-dashboard.git
+cd deep-training-dashboard
+docker build -f docker/Dockerfile -t deep-training-dashboard .
 ```
 
 To run the created image you have to export the `config.json` file (with your credentials) inside
 the docker container:
 ```bash
-docker run -d -p 5001:5001 -v $PWD/config.json:/app/app/config.json orchestrator-dashboard
+docker run -d -p 5001:5001 -v $PWD/config.json:/app/app/config.json deep-training-dashboard
 ```
 
 The dashboard will be accessible at http://0.0.0.0:5001 .
@@ -203,8 +199,8 @@ docker run -d -p 5001:5001 -v $PWD/config.json:/app/app/config.json indigodatacl
 ## How to setup a development environment
 
 ```bash
-git clone https://github.com/indigo-dc/orchestrator-dashboard.git
-cd orchestrator-dashboard
+git clone https://github.com/indigo-dc/deep-training-dashboard.git
+cd deep-training-dashboard
 python3 -m venv venv
 source venv/bin/activate
 pip3 install -r requirements.txt
