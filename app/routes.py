@@ -240,6 +240,8 @@ def configure(selected_module):
     # Parse form
     toscaname = request.args.get('toscaname', default='default')
     hardware = request.args.get('hardware', default='cpu')
+    docker_tag = request.args.get('docker_tag', default='cpu')
+    docker_tags = ['cpu']
     run = request.args.get('run', default='deepaas')
 
     # Update TOSCA conf
@@ -249,7 +251,12 @@ def configure(selected_module):
         if selected_tosca == settings.default_tosca:
             tosca_info = deepcopy(tosca_info)
             tosca_info['inputs']['docker_image']['default'] = modules[selected_module]['sources']['docker_registry_repo']
-        tosca_info = utils.update_conf(conf=tosca_info, hardware=hardware, run=run)
+
+        docker_tags = modules[selected_module]['sources']['docker_tags']
+        if docker_tag not in docker_tags:
+            docker_tag = docker_tags[0]
+
+        tosca_info = utils.update_conf(conf=tosca_info, hardware=hardware, docker_tag=docker_tag, run=run)
     except Exception as e:
         print(e)
         flash("""Error updating the parameters according to the blue box selection. This tosca template might have some
@@ -259,6 +266,8 @@ def configure(selected_module):
                                'available': list(modules[selected_module]['toscas'].keys())},
                  'hardware': {'selected': hardware,
                               'available': ['CPU', 'GPU']},
+                 'docker_tag': {'selected': docker_tag,
+                                'available': docker_tags},
                  'run': {'selected': run,
                          'available': ['DEEPaaS', 'JupyterLab']}
                  }
