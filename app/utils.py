@@ -113,7 +113,7 @@ def update_conf(conf, hardware='cpu', docker_tag='cpu', run='deepaas'):
             conf['inputs']['run_command']['default'] += ' --listen-port=$PORT0'
 
     elif run == 'jupyterlab':
-        flash('Remember to set a Jupyter password (mandatory).')
+        flash('Remember to set a Jupyter password (mandatory).', category='info')
         conf['inputs']['run_command']['default'] = '/srv/.jupyter/run_jupyter.sh --allow-root'
         if hardware == 'gpu':
             conf['inputs']['run_command']['default'] = "jupyterPORT=$PORT2 " + conf['inputs']['run_command']['default']

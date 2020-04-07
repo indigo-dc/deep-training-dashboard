@@ -1,11 +1,9 @@
-{% with messages = get_flashed_messages() %}
-{% if messages %}
-{% for message in messages %}
-<div class="alert alert-warning alert-dismissible">
-  <button type="button" class="close" data-dismiss="alert">&times;</button>	
-  <strong>Warning!</strong> {{ message }}
-</div>
-<p></p>
-{% endfor %}
+{% for category, message in get_flashed_messages(with_categories=True) %}
+{% if category == 'message' %}
+    {% set category = 'info' %}
 {% endif %}
-{% endwith %}
+  <div class="alert alert-{{category}} alert-dismissible mb-4 mt-4">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+      {{ message }}
+  </div>
+{% endfor %}

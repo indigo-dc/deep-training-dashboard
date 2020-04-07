@@ -99,7 +99,7 @@ def getslas():
         access_token = iam_blueprint.session.token['access_token']
         slas = sla.get_slas(access_token, settings.orchestratorConf['slam_url'], settings.orchestratorConf['cmdb_url'])
     except Exception as e:
-        flash("Error retrieving SLAs list: \n" + str(e), 'warning')
+        flash("Error retrieving SLAs list: \n" + str(e), category='danger')
 
     return render_template('sla.html', slas=slas)
 
@@ -124,7 +124,7 @@ def get_deployments():
 
     deployments = {}
     if not response.ok:
-        flash("Error retrieving deployment list: \n" + response.text, 'warning')
+        flash("Error retrieving deployment list: \n" + response.text, category='danger')
         return render_template('deployments.html', deployments=deployments)
     else:
         deployments = response.json()["content"]
@@ -145,12 +145,12 @@ def deployment_summary(uuid):
     deployments = get_deployments()
     deployment = next((d for d in deployments if d['uuid'] == uuid), None)
     if deployment is None:
-        flash('This id matches no deployment')
+        flash('This id matches no deployment', category='warning')
         return redirect(url_for('showdeployments', _external=True))
 
     # Check if deployment is still in 'create_in_progress'
     if not 'deepaas_endpoint' in deployment['outputs']:
-        flash('Wait until creation is completed before you access the training history.')
+        flash('Wait until creation is completed before you access the training history.', category='warning')
         return redirect(url_for('showdeployments', _external=True))
 
     # Check if deployment has DEEPaaS V2
@@ -160,7 +160,7 @@ def deployment_summary(uuid):
         if 'v2' not in [v['id'] for v in versions]:
             raise Exception
     except Exception as e:
-        flash('You need to be running DEEPaaS V2 to access to the training history')
+        flash('You need to be running DEEPaaS V2 to access to the training history', category='warning')
         return redirect(url_for('showdeployments', _external=True))
 
     # Get info
@@ -193,7 +193,7 @@ def deptemplate(depid=None):
     response = requests.get(url, headers=headers)
 
     if not response.ok:
-        flash("Error getting template: " + response.text)
+        flash("Error getting template: " + response.text, category='danger')
         return redirect(url_for('home', _external=True))
 
     template = response.text
@@ -228,7 +228,7 @@ def depdel(depid=None):
     response = requests.delete(url, headers=headers)
 
     if not response.ok:
-        flash("Error deleting deployment: " + response.text)
+        flash("Error deleting deployment: " + response.text, category='danger')
 
     return redirect(url_for('showdeployments', _external=True))
 
@@ -260,7 +260,7 @@ def configure(selected_module):
     except Exception as e:
         print(e)
         flash("""Error updating the parameters according to the blue box selection. This tosca template might have some
-        hardcoded options.""", 'warning')
+        hardcoded options.""", category='warning')
     app.logger.debug("Template: " + json.dumps(tosca_info))
     form_conf = {'toscaname': {'selected': toscaname,
                                'available': list(modules[selected_module]['toscas'].keys())},
@@ -280,7 +280,7 @@ def configure(selected_module):
         print(e)
         flash("Error retrieving the infrastructure provider's list. You probably won't be able to create "
               "your request correctly. Please report the problem to {}.".format(app.config.get('SUPPORT_EMAIL')),
-              category='error')
+              category='danger')
         slas = None
 
     return render_template('createdep.html',
@@ -341,7 +341,7 @@ def createdep():
     response = requests.post(url, json=payload, headers=headers)
 
     if not response.ok:
-        flash("Error submitting deployment: \n" + response.text)
+        flash("Error submitting deployment: \n" + response.text, category='danger')
 
     return redirect(url_for('showdeployments', _external=True))
 
