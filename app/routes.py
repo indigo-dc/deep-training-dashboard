@@ -248,10 +248,9 @@ def configure(selected_module):
     selected_tosca = modules[selected_module]['toscas'][toscaname]
     tosca_info = toscaInfo[selected_tosca]
     try:
-        if selected_tosca == settings.default_tosca:
-            tosca_info = deepcopy(tosca_info)
-            tosca_info['inputs']['docker_image']['default'] = modules[selected_module]['sources']['docker_registry_repo']
-
+        tosca_info = deepcopy(tosca_info)
+        # in case we choose any of common tosca (with no docker repo assigned), use module repo
+        tosca_info['inputs']['docker_image'].setdefault('default', modules[selected_module]['sources']['docker_registry_repo'])
         docker_tags = modules[selected_module]['sources']['docker_tags']
         if docker_tag not in docker_tags:
             docker_tag = docker_tags[0]
@@ -383,11 +382,10 @@ def load_files(verify=True):
     toscaTemplates = utils.loadToscaTemplates(settings.toscaDir)
     toscaInfo = utils.extractToscaInfo(toscaDir=settings.toscaDir,
                                        tosca_pars_dir=settings.toscaParamsDir,
-                                       toscaTemplates=toscaTemplates,
-                                       default_tosca=settings.default_tosca)
+                                       toscaTemplates=toscaTemplates)
 
     modules = utils.get_modules(tosca_templates=toscaTemplates,
-                                default_tosca=settings.default_tosca,
+                                common_toscas=settings.common_toscas,
                                 tosca_dir=settings.toscaDir)
     toscaTemplates = utils.loadToscaTemplates(
         settings.toscaDir)  # load again as we might have downloaded a new TOSCA during the get_modules

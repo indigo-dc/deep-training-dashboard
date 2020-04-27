@@ -47,7 +47,10 @@ The docker image uses [Gunicorn](https://gunicorn.org/) as WSGI HTTP server to s
         "IM_URL": "https://paas.cloud.cnaf.infn.it/im",
     
         "TOSCA_TEMPLATES_DIR": "../tosca-templates/deep-oc",
-        "DEFAULT_TOSCA_NAME": "deep-oc-marathon-webdav.yml",
+        "COMMON_TOSCAS": {
+            "default": "deep-oc-marathon-webdav.yml",
+            "minimal": "deep-oc-marathon-minimal.yml"
+        },
         "MODULES_YML": "https://raw.githubusercontent.com/deephdc/deep-oc/master/MODULES.yml",
         "GITHUB_SECRET": "",
     

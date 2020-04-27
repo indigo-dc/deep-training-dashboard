@@ -55,7 +55,7 @@ def loadToscaTemplates(directory):
     return toscaTemplates
 
 
-def extractToscaInfo(toscaDir, tosca_pars_dir, toscaTemplates, default_tosca):
+def extractToscaInfo(toscaDir, tosca_pars_dir, toscaTemplates):
     toscaInfo = {}
     for tosca in toscaTemplates:
         with io.open(toscaDir + tosca) as stream:
@@ -133,10 +133,10 @@ def update_conf(conf, hardware='cpu', docker_tag='cpu', run='deepaas'):
     return conf
 
 
-def get_modules(tosca_templates, default_tosca, tosca_dir):
+def get_modules(tosca_templates, common_toscas, tosca_dir):
     """
     We map modules available on the DEEP marketplace to available TOSCA files.
-    If a module doesn't have a custom TOSCA, a default TOSCA will be loaded.
+    If a module doesn't have a custom TOSCA, a common TOSCAs will be loaded.
     """
     # Get the list of available modules in the Marketplace
     r = requests.get(settings.modules_yml)
@@ -175,7 +175,7 @@ def get_modules(tosca_templates, default_tosca, tosca_dir):
         for t in metadata['tosca']:
             try:
                 tosca_name = os.path.basename(t['url'])
-                if tosca_name == default_tosca:
+                if tosca_name in common_toscas.values():
                     continue
                 if tosca_name not in tosca_templates:
                     urllib.request.urlretrieve(t['url'], os.path.join(tosca_dir, tosca_name))
@@ -183,8 +183,9 @@ def get_modules(tosca_templates, default_tosca, tosca_dir):
             except Exception as e:
                 print('Error processing TOSCA in module {}'.format(module_name))
 
-        # Add always default tosca
-        toscas['default'] = default_tosca
+        # Add always common TOSCAs
+        for k, v in common_toscas.items():
+            toscas[k] = v
 
         # Build the module dict
         modules[module_name] = {'toscas': toscas,

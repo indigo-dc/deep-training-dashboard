@@ -5,7 +5,7 @@ from app import app
 
 toscaDir = app.config['TOSCA_TEMPLATES_DIR'] + "/"
 toscaParamsDir = app.config.get('TOSCA_PARAMETERS_DIR')
-default_tosca = app.config['DEFAULT_TOSCA_NAME']
+common_toscas = app.config['COMMON_TOSCAS']
 modules_yml = app.config['MODULES_YML']
 iamUrl = app.config['IAM_BASE_URL']
 github_secret = app.config['GITHUB_SECRET'].encode('utf-8')
