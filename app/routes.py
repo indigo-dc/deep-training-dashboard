@@ -156,7 +156,7 @@ def deployment_summary(uuid):
     # Check if deployment has DEEPaaS V2
     deepaas_url = deployment['outputs']['deepaas_endpoint']
     try:
-        versions = requests.get(deepaas_url).json()['versions']
+        versions = requests.get(deepaas_url, verify=False).json()['versions']
         if 'v2' not in [v['id'] for v in versions]:
             raise Exception
     except Exception as e:
@@ -164,10 +164,10 @@ def deployment_summary(uuid):
         return redirect(url_for('showdeployments', _external=True))
 
     # Get info
-    r = requests.get(deepaas_url + '/v2/models').json()
+    r = requests.get(deepaas_url + '/v2/models', verify=False).json()
     training_info = {}
     for model in r['models']:
-        r = requests.get('{}/v2/models/{}/train/'.format(deepaas_url, model['id']))
+        r = requests.get('{}/v2/models/{}/train/'.format(deepaas_url, model['id']), verify=False)
         training_info[model['id']] = r.json()
 
     return render_template('deployment_summary.html', deployment=deployment, training_info=training_info)
