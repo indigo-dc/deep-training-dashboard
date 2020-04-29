@@ -4,15 +4,17 @@
 
     <div class="container text-dark bg-light border rounded mb-5 mt-4">
         <div class="row d-flex justify-content-center">
-            <div class="col-md-6 mt-4 mb-2">
+            <div class="col-md-5 mt-4 mb-2">
                 <h5 class="text-center"><b>DEEP Development Environment</b> <i class="fas fa-flask"></i> </h5>
                 The DEEP Development Environment provides a ready to use JupyterLab instance
                 that enables you to develop code using Jupyter notebooks, text editors, terminals, and custom
                 components in a flexible, integrated, and extensible manner.
                 <br>
-                <a class="btn btn-outline-dark rounded mx-1 my-3 p-2" href="{{ url_for('configure', selected_module='deep-oc-generic-dev', run='jupyterlab', toscaname='minimal') }}">
-                    <i class="fas fa-atom"></i> Create environment
-                </a>
+                <div class="text-center">
+                    <a class="btn btn-outline-dark rounded mx-1 my-3 p-2" href="{{ url_for('configure', selected_module='deep-oc-generic-dev', run='jupyterlab', toscaname='minimal') }}">
+                        <i class="fas fa-atom"></i> Create environment
+                    </a>
+                </div>
             </div>
         </div>
     </div>
