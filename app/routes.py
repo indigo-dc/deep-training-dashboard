@@ -22,6 +22,7 @@ app.jinja_env.filters['tojson_pretty'] = utils.to_pretty_json
 app.logger.debug("EXTERNAL_LINKS: {}".format(settings.external_links))
 app.logger.debug("ENABLE_ADVANCED_MENU: {}".format(settings.enable_advanced_menu))
 
+slas = None
 
 @app.before_request
 def before_request_checks():
@@ -243,6 +244,7 @@ def configure(selected_module):
     docker_tag = request.args.get('docker_tag', default='cpu')
     docker_tags = ['cpu']
     run = request.args.get('run', default='deepaas')
+    find_slas = request.args.get('slas', default='true')
 
     # Update TOSCA conf
     selected_tosca = modules[selected_module]['toscas'][toscaname]
@@ -271,16 +273,19 @@ def configure(selected_module):
                          'available': ['DEEPaaS', 'JupyterLab']}
                  }
 
-    # Getting slas
+    # Getting slas: If user comes from the general form in the config (ie. find_slas=='false') and slas have already
+    # been calculated, we skip this (very slow) step to improve UX
+    global slas
     access_token = iam_blueprint.session.token['access_token']
-    try:
-        slas = sla.get_slas(access_token, settings.orchestratorConf['slam_url'], settings.orchestratorConf['cmdb_url'])
-    except Exception as e:
-        print(e)
-        flash("Error retrieving the infrastructure provider's list. You probably won't be able to create "
-              "your request correctly. Please report the problem to {}.".format(app.config.get('SUPPORT_EMAIL')),
-              category='danger')
-        slas = None
+    if not slas or find_slas == 'true':
+        try:
+            slas = sla.get_slas(access_token, settings.orchestratorConf['slam_url'], settings.orchestratorConf['cmdb_url'])
+        except Exception as e:
+            print(e)
+            flash("Error retrieving the infrastructure provider's list. You probably won't be able to create "
+                  "your request correctly. Please report the problem to {}.".format(app.config.get('SUPPORT_EMAIL')),
+                  category='danger')
+            slas = None
 
     return render_template('createdep.html',
                            template=tosca_info,
