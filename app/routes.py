@@ -161,7 +161,8 @@ def deployment_summary(uuid):
         if 'v2' not in [v['id'] for v in versions]:
             raise Exception
     except Exception as e:
-        flash('You need to be running DEEPaaS V2 to access to the training history', category='warning')
+        flash('You need to be running DEEPaaS V2 inside the deployment to be able to access the training history',
+              category='warning')
         return redirect(url_for('showdeployments', _external=True))
 
     # Get info

@@ -60,9 +60,17 @@
                   </h5></td>
                   <td>{{ element.message }}</td>
                   <td>
+                    <a class="btn btn-outline-primary rounded" data-toggle="collapse" href="#train_args-{{ model }}-{{ loop.index }}" role="button" aria-expanded="false" aria-controls="train_args-{{ model }}-{{ loop.index }}">
+                        Train args
+                    </a>
                   <a class="btn btn-outline-danger rounded" href="{{ url_for('delete_training', training_uuid=element.uuid, model=model, deployment=deployment) }}">
                       <span class="fas fa-trash-alt mr-2"></span>Delete
                   </a>
+                  <div class="collapse" id="train_args-{{ model }}-{{ loop.index }}">
+                      <div class="card card-body">
+                          {{ element.args }}
+                      </div>
+                  </div>
                   </td>
                 </tr>
                 {% endfor %}
