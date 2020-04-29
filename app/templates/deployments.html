@@ -71,6 +71,7 @@
                           <a class="dropdown-item" onclick="window.open('{{ deployment.outputs['deepaas_endpoint'] }}' + '/ui','_blank')" href="">DEEPaaS</a>
                           <a class="dropdown-item" onclick="window.open('{{ deployment.outputs['jupyter_endpoint'] }}','_blank')" href="">JupyterLab</a>
                           <a class="dropdown-item" onclick="window.open('{{ deployment.outputs['monitor_endpoint'] }}','_blank')" href="">Monitor</a>
+                          <a class="dropdown-item" onclick="window.open('{{ url_for('deployment_summary', uuid=deployment.uuid) }}','_blank')" href="">History</a>
                         </div>
                       </div>
 
