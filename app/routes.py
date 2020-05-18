@@ -254,14 +254,14 @@ def configure(selected_module):
         tosca_info = deepcopy(tosca_info)
         # in case we choose any of common tosca (with no docker repo assigned), use module repo
         tosca_info['inputs']['docker_image'].setdefault('default', modules[selected_module]['sources']['docker_registry_repo'])
-        docker_tags = modules[selected_module]['sources']['docker_tags']
+        docker_tags = modules[selected_module]['docker_tags']
         if docker_tag not in docker_tags:
             docker_tag = docker_tags[0]
 
         tosca_info = utils.update_conf(conf=tosca_info, hardware=hardware, docker_tag=docker_tag, run=run)
     except Exception as e:
         print(e)
-        flash("""Error updating the parameters according to the blue box selection. This tosca template might have some
+        flash("""Error updating the parameters according to the selectable form. This tosca template might have some
         hardcoded options.""", category='warning')
     app.logger.debug("Template: " + json.dumps(tosca_info))
     form_conf = {'toscaname': {'selected': toscaname,

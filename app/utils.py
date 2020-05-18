@@ -161,8 +161,8 @@ def get_modules(tosca_templates, common_toscas, tosca_dir):
             metadata = {'title': 'Run your own module',
                         'summary': 'Use your own external container hosted in Dockerhub',
                         'tosca': [],
-                        'sources': {'docker_registry_repo': '',
-                                    'docker_tags': ['latest']}
+                        'docker_tags': ['latest'],
+                        'sources': {'docker_registry_repo': ''}
                         }
         else:
             m_r = module_url.replace('https://github.com/', 'https://raw.githubusercontent.com/')
@@ -187,26 +187,27 @@ def get_modules(tosca_templates, common_toscas, tosca_dir):
         for k, v in common_toscas.items():
             toscas[k] = v
 
+        # Add Docker tags
+        if metadata['sources']['docker_registry_repo']:
+            dockerhub_tags = get_dockerhub_tags(image=metadata['sources']['docker_registry_repo'])
+            metadata.setdefault('docker_tags', [])
+            if metadata['docker_tags']:
+                # Check that the tags provided by the user are indeed present in DockerHub
+                metadata['docker_tags'] = sorted(list(set(metadata['docker_tags']).intersection(set(dockerhub_tags))))
+            else:
+                metadata['docker_tags'] = dockerhub_tags
+
         # Build the module dict
         modules[module_name] = {'toscas': toscas,
                                 'url': module_url,
                                 'title': metadata['title'],
                                 'sources': metadata['sources'],
+                                'docker_tags': metadata['docker_tags'],
                                 'description': metadata['summary'],
                                 'metadata': {'icon': 'https://cdn4.iconfinder.com/data/icons/mosaicon-04/512/websettings-512.png',
-                                             'display_name': metadata['title'],
-                                             'tag': 'cpu, gpu'
+                                             'display_name': metadata['title']
                                              }
                                 }
-
-        # Add Docker tags
-        if metadata['sources']['docker_registry_repo']:
-            dockerhub_tags = get_dockerhub_tags(image=metadata['sources']['docker_registry_repo'])
-            metadata['sources'].setdefault('docker_tags', [])
-            if metadata['sources']['docker_tags']:
-                metadata['sources']['docker_tags'] = list(set(metadata['sources']['docker_tags']).union(set(dockerhub_tags)))
-            else:
-                metadata['sources']['docker_tags'] = dockerhub_tags
 
     return modules
 
