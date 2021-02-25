@@ -3,10 +3,11 @@
     "IAM_CLIENT_SECRET": "my_client_secret",
     "IAM_BASE_URL": "https://iam.deep-hybrid-datacloud.eu",
 
-    "ORCHESTRATOR_URL": "https://paas.cloud.cnaf.infn.it/orchestrator",
-    "SLAM_URL": "https://paas.cloud.cnaf.infn.it:8443",
-    "CMDB_URL": "http://paas.cloud.cnaf.infn.it/cmdb",
-    "IM_URL": "https://paas.cloud.cnaf.infn.it/im",
+    "ORCHESTRATOR_URL": "https://deep-paas.cloud.ba.infn.it/orchestrator",
+    "SLAM_URL": "https://deep-slam.cloud.ba.infn.it:8443/rest/slam",
+    "CMDB_URL": "https://deep-paas.cloud.ba.infn.it/cmdb",
+    "IM_URL": "https://deep-paas.cloud.ba.infn.it/im",
+    "MONITORING_URL": "https://deep-paas.cloud.ba.infn.it/monitoring-wrapper",
 
     "TOSCA_TEMPLATES_DIR": "../tosca-templates/deep-oc",
     "COMMON_TOSCAS": {

@@ -15,9 +15,10 @@ if not github_secret:
 
 orchestratorUrl = app.config['ORCHESTRATOR_URL']
 orchestratorConf = {
-  'cmdb_url': app.config.get('CMDB_URL'),
-  'slam_url': app.config.get('SLAM_URL'),
-  'im_url': app.config.get('IM_URL')
+    'cmdb_url': app.config.get('CMDB_URL'),
+    'slam_url': app.config.get('SLAM_URL'),
+    'im_url': app.config.get('IM_URL'),
+    'monitoring_url': app.config.get('MONITORING_URL')
 }
 
 external_links = app.config.get('EXTERNAL_LINKS', [])
