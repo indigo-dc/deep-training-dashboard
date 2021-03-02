@@ -11,7 +11,7 @@
           <div class="row">
             <div class="col-md-6">
               <!-- Title -->
-              <h4 class="font-weight-bold text-primary">Service Level Agreements</h4>
+              <h4 class="font-weight-bold text-primary">Resource Providers</h4>
             </div>
             <div class="col-md-6 text-right">
               <!-- Button -->
@@ -30,20 +30,38 @@
                     <th>Service Type</th>
                     <th>Start date</th>
                     <th>End date</th>
+                    <th>Monitoring info</th>
                 </tr>
             </thead>
             <tbody>
                 {% for sla in slas %}
                 <tr>
-	            <!-- <td>{{sla.id}}</td>-->
-	            <td>{{sla.sitename}}</td>
-	            <td>{{sla.service_type}}</td>
-	            <td>{{sla.start_date}}</td>
-	            <td>{{sla.end_date}}</td>
+                <!-- <td>{{sla.id}}</td>-->
+                <td><a href={{sla.endpoint}}>{{sla.sitename}}</a></td>
+                <td>{{sla.service_type}}</td>
+                <td>{{sla.start_date}}</td>
+                <td>{{sla.end_date}}</td>
+                <td><button type="button" id="getInfoBtn" data-id="{{sla.service_id}}" class="btn btn-small btn-info getInfoBtn" data-toggle="modal" data-target="#newModal" data-whatever="{{sla.sitename}}">View data</button></td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+        <!-- Modal Retrieve Monitoring Info -->
+        <div class="modal fade" id="newModal">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="get_secret">Monitoring</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+              </div>
+              <div class="modal-body">
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
     </div>
     </div>
     </div>
@@ -52,7 +70,6 @@
 <script>
     $('#tableSLAs').dataTable( {
         "responsive": true,
-        "order": [],
         "columnDefs": [ {
           "targets"  : 'no-sort',
           "orderable": false,
@@ -61,5 +78,26 @@
     });
 </script>
 
-{% endblock %}
+<script>
+$(document).ready(function () {
+  $('#newModal').on('hidden.bs.modal', function () {
+    var modal = $(this)
+    modal.find('.modal-body').empty()
+  });
+});
 
+$(document).ready(function () {
+  $('#newModal').on('show.bs.modal', function (event) {
+     var button = $(event.relatedTarget) // Button that triggered the modal
+     var service_id = button.data('id')
+     var provider = button.data('whatever')
+     var modal = $(this)
+     if (event.relatedTarget.id == "getInfoBtn") {
+         modal.find('.modal-body').html('Loading...').load("{{url_for('get_monitoring_info')}}" + "?service_id=" + service_id + "&provider=" + provider);
+     }
+  });
+});
+
+</script>
+
+{% endblock %}

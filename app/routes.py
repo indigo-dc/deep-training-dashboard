@@ -351,6 +351,28 @@ def createdep():
     return redirect(url_for('showdeployments', _external=True))
 
 
+@app.route('/get_monitoring_info')
+@authorized_with_valid_token
+def get_monitoring_info():
+
+    provider = request.args.get('provider', None)
+    serviceid = request.args.get('service_id', None)
+    access_token = iam_blueprint.session.token['access_token']
+
+    headers = {'Authorization': 'bearer {}'.format(access_token)}
+    url = settings.orchestratorConf['monitoring_url'] + "/monitoring/adapters/zabbix/zones/indigo/types/infrastructure/groups/" + provider + "/hosts/" + serviceid
+    response = requests.get(url, headers=headers)
+
+    monitoring_data = {}
+    if response.ok:
+        try:
+            monitoring_data = response.json()['result']['groups'][0]['paasMachines'][0]['services'][0]['paasMetrics']
+        except Exception as e:
+            app.logger.debug("Error getting monitoring data")
+
+    return render_template('monitoring_metrics.html', monitoring_data=monitoring_data)
+
+
 @app.route('/logout')
 def logout():
     session.clear()

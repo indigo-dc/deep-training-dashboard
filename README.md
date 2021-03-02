@@ -45,7 +45,8 @@ The docker image uses [Gunicorn](https://gunicorn.org/) as WSGI HTTP server to s
         "SLAM_URL": "https://paas.cloud.cnaf.infn.it:8443",
         "CMDB_URL": "http://paas.cloud.cnaf.infn.it/cmdb",
         "IM_URL": "https://paas.cloud.cnaf.infn.it/im",
-    
+        "MONITORING_URL": "https://deep-paas.cloud.ba.infn.it/monitoring-wrapper",
+
         "TOSCA_TEMPLATES_DIR": "../tosca-templates/deep-oc",
         "COMMON_TOSCAS": {
             "default": "deep-oc-marathon-webdav.yml",
