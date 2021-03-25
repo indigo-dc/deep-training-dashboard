@@ -2,5 +2,5 @@ Flask_Dance==2.2.0
 Werkzeug==0.15.6
 Flask==1.1.1
 requests==2.22.0
-PyYAML==5.1.2
+PyYAML==5.4
 packaging==19.2
